@@ -1,2680 +1,416 @@
+
 <!DOCTYPE html>
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-
-<title>LUDOVERSE — Cinematic Snakes & Ladders</title>
-
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#091020">
+<title>LUDOVERSE — Board Party</title>
+<script src="https://unpkg.com/peerjs@1.5.5/dist/peerjs.min.js"></script>
 <style>
-*{
-    box-sizing:border-box;
-    -webkit-tap-highlight-color:transparent;
+:root {
+  --bg:#091020;--panel:#111d32;--panel2:#182843;
+  --line:#30415d;--text:#f4f7ff;--muted:#9bacc6;
+  --gold:#ffd47a;--cyan:#65e3f2;--pink:#ff709b;
 }
-
-html,body{
-    margin:0;
-    width:100%;
-    height:100%;
-    overflow:hidden;
-
-    font-family:
-        Inter,
-        ui-sans-serif,
-        system-ui,
-        -apple-system,
-        BlinkMacSystemFont,
-        "Segoe UI",
-        sans-serif;
-
-    background:#03040a;
-    color:white;
-}
-
-body{
-    transition:
-        background 1s ease;
-}
-
-button{
-    font:inherit;
-}
-
-canvas{
-    position:fixed;
-    inset:0;
-    width:100%;
-    height:100%;
-    z-index:0;
-}
-
-#background{
-    position:fixed;
-    inset:0;
-    z-index:-1;
-    overflow:hidden;
-
-    background:
-        radial-gradient(
-            circle at 50% 30%,
-            var(--glow),
-            transparent 45%
-        ),
-        linear-gradient(
-            135deg,
-            var(--bg1),
-            var(--bg2)
-        );
-
-    transition:
-        background 1s ease;
-}
-
-#background::before{
-    content:"";
-    position:absolute;
-    inset:-50%;
-
-    background:
-        radial-gradient(
-            circle,
-            rgba(255,255,255,.08) 1px,
-            transparent 1px
-        );
-
-    background-size:60px 60px;
-
-    animation:
-        stars 30s linear infinite;
-
-    opacity:.35;
-}
-
-@keyframes stars{
-    to{
-        transform:translate(60px,60px);
-    }
-}
-
-#app{
-    position:relative;
-    width:100%;
-    height:100%;
-}
-
-.screen{
-    position:absolute;
-    inset:0;
-
-    display:flex;
-    align-items:center;
-    justify-content:center;
-
-    padding:25px;
-
-    transition:
-        opacity .5s,
-        transform .5s;
-}
-
-.hidden{
-    opacity:0!important;
-    pointer-events:none!important;
-    transform:scale(1.04);
-}
-
-/* ================= MENU ================= */
-
-.menuCard{
-    width:min(1050px,94vw);
-    max-height:92vh;
-
-    overflow:auto;
-
-    padding:38px;
-
-    border-radius:30px;
-
-    background:
-        linear-gradient(
-            135deg,
-            rgba(8,10,24,.82),
-            rgba(14,9,30,.72)
-        );
-
-    border:
-        1px solid rgba(255,255,255,.12);
-
-    box-shadow:
-        0 40px 100px rgba(0,0,0,.6),
-        0 0 100px var(--glow);
-
-    backdrop-filter:
-        blur(25px);
-
-    scrollbar-width:none;
-}
-
-.menuCard::-webkit-scrollbar{
-    display:none;
-}
-
-.brand{
-    text-align:center;
-}
-
-.brandSmall{
-    font-size:10px;
-    letter-spacing:7px;
-    color:#8c94aa;
-}
-
-.logo{
-    margin-top:10px;
-
-    font-size:
-        clamp(50px,10vw,100px);
-
-    font-weight:1000;
-
-    letter-spacing:-7px;
-    line-height:.8;
-
-    background:
-        linear-gradient(
-            90deg,
-            var(--accent),
-            white,
-            var(--accent2)
-        );
-
-    -webkit-background-clip:text;
-    color:transparent;
-
-    filter:
-        drop-shadow(
-            0 0 30px var(--accent)
-        );
-}
-
-.description{
-    margin:
-        25px auto 0;
-
-    max-width:600px;
-
-    color:#9299ad;
-
-    font-size:13px;
-    line-height:1.7;
-}
-
-.sectionTitle{
-    margin-top:35px;
-
-    font-size:10px;
-    letter-spacing:4px;
-
-    color:#70788d;
-}
-
-.worlds{
-    display:grid;
-
-    grid-template-columns:
-        repeat(
-            auto-fit,
-            minmax(145px,1fr)
-        );
-
-    gap:12px;
-
-    margin-top:14px;
-}
-
-.world{
-    position:relative;
-
-    min-height:155px;
-
-    padding:18px;
-
-    border-radius:18px;
-
-    overflow:hidden;
-
-    cursor:pointer;
-
-    border:
-        1px solid rgba(255,255,255,.08);
-
-    background:
-        rgba(255,255,255,.035);
-
-    transition:
-        .25s;
-}
-
-.world:hover{
-    transform:
-        translateY(-5px);
-
-    border-color:
-        var(--accent);
-
-    box-shadow:
-        0 15px 40px
-        rgba(0,0,0,.3);
-}
-
-.world.active{
-    border-color:
-        var(--accent);
-
-    box-shadow:
-        0 0 35px
-        color-mix(
-            in srgb,
-            var(--accent) 30%,
-            transparent
-        );
-
-    background:
-        rgba(255,255,255,.08);
-}
-
-.worldIcon{
-    font-size:40px;
-}
-
-.worldName{
-    margin-top:10px;
-
-    font-weight:900;
-}
-
-.worldDesc{
-    margin-top:4px;
-
-    color:#777f94;
-
-    font-size:10px;
-}
-
-.start{
-    width:100%;
-
-    margin-top:25px;
-
-    padding:17px;
-
-    border:0;
-    border-radius:14px;
-
-    cursor:pointer;
-
-    color:#05060b;
-
-    font-weight:1000;
-    letter-spacing:3px;
-
-    background:
-        linear-gradient(
-            90deg,
-            var(--accent),
-            var(--accent2)
-        );
-
-    box-shadow:
-        0 0 35px
-        color-mix(
-            in srgb,
-            var(--accent) 25%,
-            transparent
-        );
-
-    transition:.2s;
-}
-
-.start:hover{
-    transform:
-        translateY(-2px);
-}
-
-/* ================= GAME ================= */
-
-#gameScreen{
-    display:block;
-
-    padding:0;
-}
-
-#topbar{
-    position:absolute;
-
-    top:15px;
-    left:15px;
-    right:15px;
-
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-
-    z-index:5;
-
-    pointer-events:none;
-}
-
-.glass{
-    padding:
-        10px 14px;
-
-    border:
-        1px solid rgba(255,255,255,.1);
-
-    border-radius:13px;
-
-    background:
-        rgba(4,6,16,.58);
-
-    backdrop-filter:
-        blur(15px);
-
-    box-shadow:
-        0 10px 30px
-        rgba(0,0,0,.25);
-}
-
-.modeName{
-    font-size:13px;
-    font-weight:900;
-}
-
-.turnText{
-    margin-top:3px;
-
-    color:#8991a8;
-
-    font-size:9px;
-    letter-spacing:2px;
-}
-
-#boardWrap{
-    position:absolute;
-
-    left:50%;
-    top:50%;
-
-    transform:
-        translate(-50%,-50%);
-
-    width:min(
-        90vw,
-        78vh,
-        680px
-    );
-
-    aspect-ratio:1;
-
-    filter:
-        drop-shadow(
-            0 30px 80px
-            rgba(0,0,0,.7)
-        );
-}
-
-#board{
-    position:absolute;
-    inset:0;
-
-    display:grid;
-
-    grid-template-columns:
-        repeat(10,1fr);
-
-    grid-template-rows:
-        repeat(10,1fr);
-
-    border-radius:22px;
-
-    overflow:hidden;
-
-    border:
-        2px solid
-        rgba(255,255,255,.18);
-
-    background:
-        rgba(0,0,0,.3);
-
-    box-shadow:
-        inset 0 0 50px
-        rgba(0,0,0,.4);
-}
-
-.cell{
-    position:relative;
-
-    display:flex;
-    align-items:center;
-    justify-content:center;
-
-    font-size:
-        clamp(7px,1.4vw,13px);
-
-    font-weight:900;
-
-    color:
-        rgba(255,255,255,.55);
-
-    border:
-        1px solid
-        rgba(255,255,255,.045);
-
-    overflow:visible;
-
-    transition:
-        background .5s;
-}
-
-.cell:nth-child(odd){
-    background:
-        rgba(255,255,255,.025);
-}
-
-.cell:nth-child(even){
-    background:
-        rgba(255,255,255,.055);
-}
-
-.cell.special{
-    background:
-        color-mix(
-            in srgb,
-            var(--accent) 13%,
-            transparent
-        );
-}
-
-.cellNumber{
-    position:absolute;
-    top:4px;
-    left:5px;
-
-    opacity:.7;
-}
-
-/* PLAYER PIECES */
-
-.pieces{
-    position:absolute;
-    inset:0;
-
-    pointer-events:none;
-}
-
-.piece{
-    position:absolute;
-
-    width:6.5%;
-    height:6.5%;
-
-    min-width:18px;
-    min-height:18px;
-
-    border-radius:50%;
-
-    transform:
-        translate(-50%,-50%);
-
-    transition:
-        left .25s cubic-bezier(.2,.8,.2,1),
-        top .25s cubic-bezier(.2,.8,.2,1);
-
-    z-index:10;
-
-    border:
-        2px solid white;
-
-    box-shadow:
-        0 0 20px currentColor,
-        0 5px 12px rgba(0,0,0,.5);
-
-    display:flex;
-    align-items:center;
-    justify-content:center;
-
-    font-size:7px;
-    font-weight:1000;
-}
-
-.piece::after{
-    content:"";
-
-    position:absolute;
-
-    width:35%;
-    height:35%;
-
-    top:18%;
-    left:18%;
-
-    border-radius:50%;
-
-    background:white;
-
-    opacity:.8;
-}
-
-/* SNAKES / LADDERS */
-
-#decor{
-    position:absolute;
-    inset:0;
-
-    pointer-events:none;
-
-    z-index:7;
-}
-
-.route{
-    position:absolute;
-
-    height:5px;
-
-    transform-origin:left center;
-
-    border-radius:10px;
-
-    box-shadow:
-        0 0 12px currentColor;
-}
-
-.ladder{
-    background:
-        repeating-linear-gradient(
-            90deg,
-            transparent 0 15px,
-            currentColor 15px 20px
-        );
-
-    border:
-        2px solid currentColor;
-}
-
-.snake{
-    height:12px;
-
-    background:
-        radial-gradient(
-            circle,
-            currentColor 0 40%,
-            transparent 45%
-        );
-
-    background-size:
-        20px 20px;
-
-    opacity:.8;
-}
-
-#diceArea{
-    position:absolute;
-
-    left:50%;
-    bottom:18px;
-
-    transform:
-        translateX(-50%);
-
-    display:flex;
-    align-items:center;
-    gap:12px;
-
-    z-index:15;
-}
-
-#dice{
-    width:70px;
-    height:70px;
-
-    display:flex;
-    align-items:center;
-    justify-content:center;
-
-    border-radius:17px;
-
-    font-size:34px;
-    font-weight:1000;
-
-    background:
-        linear-gradient(
-            135deg,
-            rgba(255,255,255,.15),
-            rgba(255,255,255,.04)
-        );
-
-    border:
-        1px solid rgba(255,255,255,.18);
-
-    box-shadow:
-        0 15px 40px
-        rgba(0,0,0,.4),
-        inset 0 0 20px
-        rgba(255,255,255,.05);
-
-    backdrop-filter:
-        blur(15px);
-
-    transition:.1s;
-}
-
-#roll{
-    padding:
-        14px 22px;
-
-    border:0;
-
-    border-radius:13px;
-
-    cursor:pointer;
-
-    color:#05060a;
-
-    font-size:11px;
-    font-weight:1000;
-    letter-spacing:2px;
-
-    background:
-        linear-gradient(
-            90deg,
-            var(--accent),
-            var(--accent2)
-        );
-
-    box-shadow:
-        0 0 30px
-        color-mix(
-            in srgb,
-            var(--accent) 30%,
-            transparent
-        );
-}
-
-#roll:disabled{
-    opacity:.4;
-    cursor:not-allowed;
-}
-
-#players{
-    position:absolute;
-
-    right:15px;
-    top:85px;
-
-    display:flex;
-    flex-direction:column;
-
-    gap:8px;
-
-    z-index:6;
-}
-
-.playerCard{
-    min-width:145px;
-
-    padding:9px 12px;
-
-    border-radius:12px;
-
-    background:
-        rgba(3,5,14,.6);
-
-    border:
-        1px solid
-        rgba(255,255,255,.08);
-
-    backdrop-filter:
-        blur(12px);
-
-    transition:.3s;
-}
-
-.playerCard.active{
-    border-color:
-        var(--accent);
-
-    box-shadow:
-        0 0 25px
-        color-mix(
-            in srgb,
-            var(--accent) 20%,
-            transparent
-        );
-}
-
-.playerRow{
-    display:flex;
-    align-items:center;
-    gap:8px;
-}
-
-.dot{
-    width:9px;
-    height:9px;
-
-    border-radius:50%;
-
-    box-shadow:
-        0 0 10px currentColor;
-}
-
-.playerScore{
-    margin-left:auto;
-
-    color:#9299aa;
-
-    font-size:10px;
-}
-
-/* WIN SCREEN */
-
-#win{
-    position:absolute;
-    inset:0;
-
-    z-index:30;
-
-    display:flex;
-    align-items:center;
-    justify-content:center;
-
-    background:
-        rgba(0,0,0,.65);
-
-    backdrop-filter:
-        blur(15px);
-}
-
-.winCard{
-    text-align:center;
-
-    padding:45px;
-
-    border-radius:25px;
-
-    background:
-        rgba(10,12,25,.85);
-
-    border:
-        1px solid
-        rgba(255,255,255,.15);
-
-    box-shadow:
-        0 30px 100px
-        rgba(0,0,0,.6);
-}
-
-.winTitle{
-    font-size:
-        clamp(45px,9vw,85px);
-
-    font-weight:1000;
-
-    background:
-        linear-gradient(
-            90deg,
-            var(--accent),
-            white,
-            var(--accent2)
-        );
-
-    -webkit-background-clip:text;
-    color:transparent;
-}
-
-.winText{
-    color:#8e96aa;
-    margin-top:10px;
-}
-
-.winButton{
-    width:100%;
-
-    margin-top:25px;
-
-    padding:15px;
-
-    border:0;
-    border-radius:12px;
-
-    font-weight:900;
-
-    cursor:pointer;
-
-    background:
-        linear-gradient(
-            90deg,
-            var(--accent),
-            var(--accent2)
-        );
-}
-
-/* RESPONSIVE */
-
-@media(max-width:650px){
-
-    .menuCard{
-        padding:25px;
-    }
-
-    .world{
-        min-height:125px;
-    }
-
-    .worldIcon{
-        font-size:30px;
-    }
-
-    #players{
-        right:8px;
-        top:70px;
-    }
-
-    .playerCard{
-        min-width:110px;
-        padding:7px 9px;
-    }
-
-    #boardWrap{
-        width:min(
-            94vw,
-            78vh
-        );
-    }
-
-    #diceArea{
-        bottom:10px;
-    }
-
-    #dice{
-        width:55px;
-        height:55px;
-        font-size:25px;
-    }
-
-    #roll{
-        padding:12px 14px;
-    }
-}
-
-/* ================= ONLINE MULTIPLAYER ================= */
-.onlineLobby{
-    margin:22px auto 0;
-    max-width:760px;
-    padding:18px;
-    border:1px solid rgba(255,255,255,.12);
-    border-radius:18px;
-    background:rgba(255,255,255,.035);
-}
-.onlineHeading{font-size:10px;letter-spacing:3px;color:#8993aa;margin-bottom:12px;font-weight:900}
-.onlineGrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.onlineField{width:100%;min-width:0;padding:13px 14px;border:1px solid rgba(255,255,255,.13);border-radius:11px;background:rgba(0,0,0,.22);color:#fff;outline:none}
-.onlineField:focus{border-color:var(--accent);box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 14%,transparent)}
-.onlineActions{display:flex;gap:10px;margin-top:10px}
-.onlineButton{flex:1;min-width:0;padding:12px 10px;border:1px solid rgba(255,255,255,.13);border-radius:11px;color:#fff;background:rgba(255,255,255,.07);font-weight:850;letter-spacing:.5px;cursor:pointer}
-.onlineButton.primary{background:linear-gradient(90deg,var(--accent),var(--accent2));color:#05060b;border:0}
-.onlineButton:disabled{opacity:.35;cursor:not-allowed}
-.onlineMeta{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:12px;font-size:11px;color:#9aa3b8;flex-wrap:wrap}
-.roomCode{font-weight:1000;letter-spacing:4px;color:var(--accent);font-size:17px}
-.onlinePlayers{display:flex;gap:7px;flex-wrap:wrap;margin-top:10px}
-.onlinePlayer{padding:7px 10px;border-radius:999px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.05);font-size:11px;color:#dce3f5}
-.onlineNotice{margin-top:10px;font-size:11px;line-height:1.6;color:#7f8aa4;min-height:17px}
-#disconnect{position:absolute;left:15px;bottom:18px;z-index:16;padding:9px 12px;border:1px solid rgba(255,255,255,.14);border-radius:10px;color:#e5e9f5;background:rgba(3,5,14,.65);backdrop-filter:blur(12px);font-size:10px;font-weight:800;cursor:pointer}
-@media(max-width:650px){.onlineLobby{padding:13px;margin-top:18px}.onlineGrid{grid-template-columns:1fr}.onlineActions{flex-direction:column}.onlineButton{width:100%}.onlineMeta{align-items:flex-start}.roomCode{font-size:15px}}
-
+*{box-sizing:border-box}
+body{margin:0;background:radial-gradient(ellipse at 15% 0%,#233b60,transparent 38%),radial-gradient(ellipse at 90% 30%,#3b2449,transparent 35%),var(--bg);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,sans-serif;min-height:100vh}
+button,input,select{font:inherit}
+button{cursor:pointer;color:inherit}
+.app{max-width:1380px;margin:auto;padding:20px}
+header{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:20px}
+.brand{display:flex;align-items:center;gap:12px}
+.logo{width:48px;height:48px;border-radius:15px;background:linear-gradient(135deg,#ffe89a,#ff9e68);display:grid;place-items:center;font-size:27px;box-shadow:0 8px 25px #ffb65a33}
+.brand h1{font-size:22px;letter-spacing:2px;margin:0}
+.brand small{color:var(--muted);font-size:10px;letter-spacing:2px}
+.status{font-size:10px;border:1px solid var(--line);padding:9px 12px;border-radius:30px;background:#0b1528;color:#b9c9e0}
+.panel{background:linear-gradient(145deg,#172641f5,#0d1729f5);border:1px solid var(--line);border-radius:21px;padding:20px;box-shadow:0 20px 50px #0003}
+.hero{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
+.eyebrow{font-size:10px;letter-spacing:2px;font-weight:800;color:var(--cyan)}
+.hero h2{font-size:clamp(30px,4vw,49px);line-height:1.05;letter-spacing:-1.8px;margin:13px 0}
+.hero h2 span{color:var(--gold)}
+p{color:#aebed5;line-height:1.65;font-size:13px}
+.stats{display:flex;gap:8px;flex-wrap:wrap;margin-top:17px}
+.stat{background:#0b1527;border:1px solid #2d405d;border-radius:11px;padding:9px 12px;font-size:10px;color:#b8c9df}
+.stat b{display:block;color:white;font-size:16px}
+.modes{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:15px}
+.mode{background:linear-gradient(140deg,#203451,#101a2d);border:1px solid #344761;border-radius:15px;padding:14px;text-align:left;min-height:145px}
+.mode.active,.mode:hover{border-color:var(--gold);background:#26344a}
+.mode .emoji{font-size:26px}.mode h3{margin:8px 0 5px;font-size:15px}.mode p{font-size:11px;margin:0}
+.layout{display:grid;grid-template-columns:300px minmax(0,1fr);gap:16px;align-items:start}
+.title{font-size:17px;margin:0 0 15px}
+.field{display:flex;flex-direction:column;gap:7px;margin-bottom:13px}
+.field label{font-size:10px;letter-spacing:1px;color:#aabbd2;font-weight:800}
+.field input,.field select{width:100%;padding:11px;background:#091426;border:1px solid #354762;border-radius:10px;color:white;outline:none}
+.field input:focus,.field select:focus{border-color:var(--cyan)}
+.btn{border:0;border-radius:10px;padding:11px 13px;font-weight:800;font-size:12px}
+.primary{background:linear-gradient(135deg,var(--gold),#ffab6d);color:#172033}
+.secondary{background:#20324e;border:1px solid #405472}
+.ghost{background:transparent;border:1px solid #3b4e69;color:#d2dced}
+.btnrow{display:flex;gap:8px}.btnrow .btn{flex:1}
+.divider{height:1px;background:#293b57;margin:18px 0}
+.hint{font-size:11px;color:#8fa4c1;line-height:1.6}
+.note{font-size:11px;color:#a8dce8;background:#12283a;border:1px solid #28556b;padding:10px;border-radius:10px;line-height:1.5;margin-top:10px}
+.players{display:flex;flex-direction:column;gap:7px}
+.player{display:flex;align-items:center;gap:8px;background:#0a1425;border:1px solid #283a55;border-radius:10px;padding:9px}
+.player.current{border-color:var(--gold);background:#282b31}
+.dot{width:11px;height:11px;border-radius:50%;flex:none}
+.pname{font-size:12px;font-weight:750;flex:1;overflow:hidden;text-overflow:ellipsis}
+.player small{font-size:10px;color:#9bacc6}
+.gamehead{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:13px}
+.gamehead h2{font-size:20px;margin:0}.gamehead p{font-size:11px;margin:4px 0 0}
+.boardwrap{background:#091426;border:1px solid #30425e;border-radius:17px;padding:8px;overflow:hidden}
+canvas{display:block;width:100%;max-width:760px;aspect-ratio:1;margin:auto}
+.controls{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center;margin-top:12px}
+.turnbox{background:#0a1425;border:1px solid #2c3d58;border-radius:12px;padding:11px}
+.turnbox b{display:block;font-size:13px}.turnbox span{font-size:11px;color:#9aacc6}
+.rollbtn{width:100%;margin-top:8px}.dice{width:64px;height:64px;border-radius:16px;background:linear-gradient(145deg,#fff,#cad6e8);color:#172239;display:grid;place-items:center;font-size:34px;font-weight:900}
+.feed{margin-top:12px;max-height:130px;overflow:auto;color:#a5b6cf;font-size:11px;line-height:1.6}
+.feed div{padding:5px 0;border-bottom:1px solid #1d2c43}
+.rules{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:15px}
+.rule{background:#0a1424;border:1px solid #263752;border-radius:11px;padding:11px}
+.rule b{display:block;font-size:11px;margin-bottom:5px}.rule span{font-size:10px;color:#93a7c3;line-height:1.5}
+footer{text-align:center;color:#7185a3;font-size:10px;padding:22px}
+.toast{position:fixed;bottom:20px;left:50%;transform:translate(-50%,12px);opacity:0;pointer-events:none;background:white;color:#152036;padding:12px 16px;border-radius:10px;font-size:12px;font-weight:800;transition:.2s;z-index:10}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+button:disabled{opacity:.4;cursor:not-allowed}
+@media(max-width:850px){.app{padding:12px}.hero,.layout{grid-template-columns:1fr}.panel{padding:15px}.rules{grid-template-columns:1fr 1fr}}
+@media(max-width:460px){.brand h1{font-size:18px}.brand small{font-size:8px}.status{font-size:9px;padding:7px}.hero h2{font-size:35px}.mode{padding:10px;min-height:140px}.gamehead h2{font-size:16px}.boardwrap{padding:3px}.rules{grid-template-columns:1fr}}
 </style>
 </head>
-
 <body>
+<main class="app">
+<header>
+  <div class="brand"><div class="logo">🎲</div><div><h1>LUDOVERSE</h1><small>BOARD PARTY · PLAY TOGETHER</small></div></div>
+  <div class="status" id="status">● LOCAL PLAY READY</div>
+</header>
 
-<div id="background"></div>
-
-<canvas id="particles"></canvas>
-
-<div id="app">
-
-<!-- ================= MENU ================= -->
-
-<div id="menu" class="screen">
-
-<div class="menuCard">
-
-<div class="brand">
-
-<div class="brandSmall">
-LUDO · ADVENTURE · PARTY
-</div>
-
-<div class="logo">
-LUDOVERSE
-</div>
-
-<div class="description">
-Satu papan. Banyak dunia. Banyak keberuntungan.
-Pilih dunia favoritmu dan taklukkan perjalanan menuju
-kotak terakhir.
-</div>
-
-</div>
-
-<div class="onlineLobby" id="onlineLobby">
-  <div class="onlineHeading">PLAY ONLINE · UP TO 4 PLAYERS</div>
-  <input class="onlineField" id="playerNameInput" maxlength="16" autocomplete="nickname" placeholder="Nama pemain" value="Player 1" aria-label="Nama pemain">
-  <div class="onlineActions">
-    <button class="onlineButton primary" id="createRoomBtn" type="button">✦ CREATE ROOM</button>
+<section class="hero">
+  <div class="panel">
+    <div class="eyebrow">YOUR NEXT TABLETOP OBSESSION</div>
+    <h2>Roll the dice.<br><span>Rule the board.</span></h2>
+    <p>Dua permainan klasik dalam satu arena. Hindari ular, rebut tangga, atau bawa semua bidak Ludo pulang. Main bersama hingga delapan pemain.</p>
+    <div class="stats">
+      <div class="stat"><b>2–8</b>PEMAIN</div>
+      <div class="stat"><b>2 MODE</b>GAMEPLAY</div>
+      <div class="stat"><b>FREE</b>NO ACCOUNT</div>
+    </div>
   </div>
-  <div class="onlineGrid" style="margin-top:10px">
-    <input class="onlineField" id="roomCodeInput" maxlength="6" autocomplete="off" placeholder="KODE ROOM" aria-label="Kode room">
-    <button class="onlineButton" id="joinRoomBtn" type="button">JOIN ROOM ↗</button>
+  <div class="panel">
+    <div class="eyebrow">CHOOSE YOUR BATTLE</div>
+    <div class="modes">
+      <button class="mode active" id="snakesMode"><span class="emoji">🐍</span><h3>Ular Tangga</h3><p>100 petak, ular berbahaya, tangga, dan event kejutan.</p></button>
+      <button class="mode" id="ludoMode"><span class="emoji">♟️</span><h3>Ludo 8</h3><p>Keluarkan bidak, tangkap lawan, dan raih kemenangan.</p></button>
+    </div>
   </div>
-  <div class="onlineMeta"><span id="connectionStatus">Belum terhubung · buat room atau masukkan kode</span><span id="roomCodeLabel" class="roomCode"></span></div>
-  <div class="onlinePlayers" id="onlinePlayers"></div>
-  <div class="onlineNotice" id="onlineNotice">Gratis untuk mulai melalui PeerJS Cloud. Koneksi langsung bergantung pada jaringan pemain.</div>
-</div>
+</section>
 
-<div class="sectionTitle" id="worldHeading">
-CHOOSE YOUR WORLD
-</div>
+<section class="layout">
+<aside class="panel">
+  <h2 class="title">⚙️ Lobby Setup</h2>
+  <div class="field"><label>Nama pemain pertama</label><input id="playerName" maxlength="18" value="Player 1"></div>
+  <div class="field"><label>Jumlah pemain lokal</label><select id="count"><option value="2">2 pemain</option><option value="3">3 pemain</option><option value="4" selected>4 pemain</option><option value="5">5 pemain</option><option value="6">6 pemain</option><option value="7">7 pemain</option><option value="8">8 pemain</option></select></div>
+  <div class="field"><label>Kesulitan Ular Tangga</label><select id="difficulty"><option value="classic">Classic — santai</option><option value="hard" selected>Hard — menantang</option><option value="chaos">Chaos — brutal</option></select></div>
+  <div class="btnrow"><button class="btn primary" id="start">▶ Mulai lokal</button><button class="btn secondary" id="reset">↻ Reset</button></div>
+  <div class="divider"></div>
+  <h2 class="title">🌐 Online Room</h2>
+  <div class="field"><label>Room code</label><input id="room" maxlength="12" placeholder="LV-AB12CD"></div>
+  <div class="btnrow"><button class="btn primary" id="create">＋ Buat room</button><button class="btn secondary" id="join">↗ Gabung</button></div>
+  <button class="btn ghost" id="copy" style="width:100%;margin-top:8px">⧉ Salin kode room</button>
+  <p class="hint">Host membuat room dan membagikan kodenya kepada teman. Maksimal delapan pemain termasuk host.</p>
+  <div class="note">Multiplayer memakai PeerJS/WebRTC dan membutuhkan internet. Beberapa jaringan mungkin membatasi koneksi langsung.</div>
+  <div class="divider"></div>
+  <h2 class="title">👥 Players <span id="total" style="color:var(--gold)">0/8</span></h2>
+  <div class="players" id="players"></div>
+</aside>
 
-<div class="worlds">
+<section class="panel">
+  <div class="gamehead"><div><h2 id="gameTitle">🐍 Ular Tangga — Hard</h2><p id="subtitle">Mulai permainan untuk melempar dadu.</p></div><div class="eyebrow" id="gameStatus">READY</div></div>
+  <div class="boardwrap"><canvas id="board" width="760" height="760"></canvas></div>
+  <div class="controls">
+    <div><div class="turnbox"><b id="turnName">Belum ada permainan</b><span id="turnHelp">Atur pemain lalu mulai lokal.</span></div><button class="btn primary rollbtn" id="roll" disabled>🎲 Lempar dadu</button></div>
+    <div class="dice" id="dice">—</div>
+  </div>
+  <div class="feed" id="feed"><div>Selamat datang di LUDOVERSE. Pilih mode permainan untuk memulai.</div></div>
+  <div class="rules">
+    <div class="rule"><b>🎲 Giliran</b><span>Lempar dadu untuk menggerakkan bidak.</span></div>
+    <div class="rule"><b>⚡ Event</b><span>Mode Hard dan Chaos memiliki kejutan tambahan.</span></div>
+    <div class="rule"><b>🏆 Menang</b><span>Ular Tangga: tepat 100. Ludo: empat bidak finis.</span></div>
+  </div>
+</section>
+</section>
+<footer>LUDOVERSE · INDEPENDENT BOARD GAME · v2.0.0</footer>
+</main>
+<div class="toast" id="toast"></div>
 
-<div
-class="world active"
-data-world="neon"
->
-<div class="worldIcon">🌃</div>
-<div class="worldName">
-Neon City
-</div>
-<div class="worldDesc">
-Cyberpunk metropolis
-</div>
-</div>
-
-<div
-class="world"
-data-world="forest"
->
-<div class="worldIcon">🌲</div>
-<div class="worldName">
-Mystic Forest
-</div>
-<div class="worldDesc">
-Ancient magical woods
-</div>
-</div>
-
-<div
-class="world"
-data-world="desert"
->
-<div class="worldIcon">🏜️</div>
-<div class="worldName">
-Lost Empire
-</div>
-<div class="worldDesc">
-Desert ruins
-</div>
-</div>
-
-<div
-class="world"
-data-world="ocean"
->
-<div class="worldIcon">🌊</div>
-<div class="worldName">
-Abyss
-</div>
-<div class="worldDesc">
-Deep ocean kingdom
-</div>
-</div>
-
-<div
-class="world"
-data-world="inferno"
->
-<div class="worldIcon">🌋</div>
-<div class="worldName">
-Inferno
-</div>
-<div class="worldDesc">
-Volcanic battlefield
-</div>
-</div>
-
-<div
-class="world"
-data-world="frost"
->
-<div class="worldIcon">❄️</div>
-<div class="worldName">
-Frost Kingdom
-</div>
-<div class="worldDesc">
-Frozen royal realm
-</div>
-</div>
-
-</div>
-
-<button
-class="start"
-id="startGame"
->
-ENTER WORLD
-</button>
-
-</div>
-</div>
-
-<!-- ================= GAME ================= -->
-
-<div
-id="gameScreen"
-class="screen hidden"
->
-
-<div id="topbar">
-
-<div class="glass">
-
-<div
-class="modeName"
-id="modeName"
->
-Neon City
-</div>
-
-<div
-class="turnText"
-id="turnText"
->
-YOUR TURN
-</div>
-
-</div>
-
-<div class="glass">
-
-<div
-class="modeName"
->
-LUDOVERSE
-</div>
-
-<div
-class="turnText"
->
-DEMO · 4 PLAYERS
-</div>
-
-</div>
-
-</div>
-
-<div id="boardWrap">
-
-<div id="board"></div>
-
-<div id="decor"></div>
-
-<div
-class="pieces"
-id="pieces"
-></div>
-
-</div>
-
-<div id="players"></div>
-<button id="disconnect" type="button">↩ LEAVE ROOM</button>
-
-<div id="diceArea">
-
-<div id="dice">
-🎲
-</div>
-
-<button id="roll">
-ROLL DICE
-</button>
-
-</div>
-
-</div>
-
-<!-- ================= WIN ================= -->
-
-<div
-id="win"
-class="hidden"
->
-
-<div class="winCard">
-
-<div class="winTitle">
-VICTORY
-</div>
-
-<div
-class="winText"
-id="winText"
->
-Player 1 reached the final tile.
-</div>
-
-<button
-class="winButton"
-id="again"
->
-PLAY AGAIN
-</button>
-
-</div>
-
-</div>
-
-</div>
-
-<script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
 <script>
-/* =========================================================
-   LUDOVERSE
-   Cinematic Snakes & Ladders Demo
-========================================================= */
-
-const canvas=
-document.getElementById("particles");
-
-const ctx=
-canvas.getContext("2d");
-
-let W=innerWidth;
-let H=innerHeight;
-
-function resizeCanvas(){
-
-    W=innerWidth;
-    H=innerHeight;
-
-    canvas.width=
-        W*devicePixelRatio;
-
-    canvas.height=
-        H*devicePixelRatio;
-
-    ctx.setTransform(
-        devicePixelRatio,
-        0,
-        0,
-        devicePixelRatio,
-        0,
-        0
-    );
+(()=> {
+'use strict';
+const $=id=>document.getElementById(id);
+const COLORS=['#ff647c','#54d8ff','#ffd166','#72e6a0','#c79bff','#ff9f5a','#ff7bd5','#b8d7ff'];
+let mode='snakes',difficulty='hard',players=[],current=0,game=null,started=false,busy=false;
+let online=false,isHost=false,peer=null,hostConn=null,connections=new Map(),myId='',roomCode='',feed=[];
+const rand=n=>Math.floor(Math.random()*n);
+const safeText=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+function toast(s){$('toast').textContent=s;$('toast').classList.add('show');setTimeout(()=>$('toast').classList.remove('show'),2300)}
+function log(s){feed.unshift(s);feed=feed.slice(0,10);$('feed').innerHTML=feed.map(v=>'<div>'+safeText(v)+'</div>').join('')}
+function setStatus(s){$('status').textContent='● '+s}
+function makePlayer(name,i,id){return{id:id||('local-'+i),name,color:COLORS[i%8],pos:0,tokens:[-1,-1,-1,-1],finished:false}}
+function setupPlayers(n){players=[makePlayer(($('playerName').value.trim()||'Player 1').slice(0,18),0)];for(let i=1;i<n;i++)players.push(makePlayer('Player '+(i+1),i))}
+function setMode(m){
+  mode=m;$('snakesMode').classList.toggle('active',m==='snakes');$('ludoMode').classList.toggle('active',m==='ludo');
+  $('gameTitle').textContent=m==='snakes'?'🐍 Ular Tangga — '+({classic:'Classic',hard:'Hard',chaos:'Chaos'}[difficulty]):'♟️ Ludo 8 — Battle Arena';
+  $('subtitle').textContent=m==='snakes'?'Hindari ular, cari tangga, hadapi event kejutan.':'Keluarkan bidak, makan lawan, dan bawa semua bidak pulang.';
+  draw();
 }
-
-resizeCanvas();
-
-addEventListener(
-    "resize",
-    resizeCanvas
-);
-
-
-/* =========================================================
-   WORLDS
-========================================================= */
-
-const worlds={
-
-neon:{
-    name:"Neon City",
-
-    bg1:"#030615",
-    bg2:"#18052c",
-    glow:"rgba(0,245,255,.18)",
-
-    accent:"#00f5ff",
-    accent2:"#ff2bd6",
-
-    snake:"🐍",
-    ladder:"⚡",
-
-    music:"neon"
-},
-
-forest:{
-    name:"Mystic Forest",
-
-    bg1:"#03120c",
-    bg2:"#081e18",
-    glow:"rgba(80,255,150,.16)",
-
-    accent:"#55ff9a",
-    accent2:"#b8ff52",
-
-    snake:"🐉",
-    ladder:"🌿",
-
-    music:"forest"
-},
-
-desert:{
-    name:"Lost Empire",
-
-    bg1:"#1b0c04",
-    bg2:"#38200a",
-    glow:"rgba(255,178,70,.18)",
-
-    accent:"#ffb347",
-    accent2:"#ffe27a",
-
-    snake:"🐍",
-    ladder:"🏺",
-
-    music:"desert"
-},
-
-ocean:{
-    name:"Abyss",
-
-    bg1:"#021019",
-    bg2:"#032d40",
-    glow:"rgba(0,210,255,.2)",
-
-    accent:"#00d9ff",
-    accent2:"#65fff0",
-
-    snake:"🐙",
-    ladder:"🪸",
-
-    music:"ocean"
-},
-
-inferno:{
-    name:"Inferno",
-
-    bg1:"#160303",
-    bg2:"#3b0805",
-    glow:"rgba(255,65,20,.22)",
-
-    accent:"#ff4b21",
-    accent2:"#ffce3a",
-
-    snake:"🐍",
-    ladder:"🔥",
-
-    music:"fire"
-},
-
-frost:{
-    name:"Frost Kingdom",
-
-    bg1:"#030b17",
-    bg2:"#0a1d36",
-    glow:"rgba(100,210,255,.2)",
-
-    accent:"#70dfff",
-    accent2:"#d8ffff",
-
-    snake:"🐲",
-    ladder:"❄️",
-
-    music:"ice"
+$('snakesMode').onclick=()=>setMode('snakes');
+$('ludoMode').onclick=()=>setMode('ludo');
+$('difficulty').onchange=()=>{difficulty=$('difficulty').value;setMode(mode)};
+function newGame(){
+  started=true;busy=false;current=0;feed=[];game=mode==='snakes'?{
+    mode,over:false,winnerName:'',
+    snakes:difficulty==='classic'?{98:28,95:24,83:19,73:1,64:36,55:7,48:9,46:5,24:16}:{98:14,95:24,92:51,83:19,73:1,69:33,64:36,59:17,55:7,52:11,48:9,46:5,44:22,24:16},
+    ladders:difficulty==='classic'?{2:23,8:30,15:34,21:42,28:57,36:55,51:72,71:91,78:97}:{2:23,8:30,15:34,28:57,36:55,51:72,71:91},
+    events:difficulty==='classic'?{}:{17:'bonus',39:'swap',62:'teleport',88:'penalty',12:'shield',76:'bonus'}
+  }:{mode,over:false,winnerName:''};
+  players.forEach(p=>{p.pos=0;p.tokens=[-1,-1,-1,-1];p.finished=false});
+  $('gameStatus').textContent='IN GAME';$('dice').textContent='—';
+  log(mode==='snakes'?'Permainan dimulai! Capai petak 100 dengan angka tepat.':'Permainan dimulai! Lempar 6 untuk mengeluarkan bidak.');
+  update();draw();if(online&&isHost)broadcast();
 }
-
+function disconnect(){
+  try{connections.forEach(c=>c.close());connections.clear();if(hostConn)hostConn.close();if(peer)peer.destroy()}catch(e){}
+  peer=null;hostConn=null;online=false;isHost=false;roomCode='';myId='';
+}
+$('start').onclick=()=>{disconnect();setupPlayers(+$('count').value);newGame();setStatus('LOCAL PLAY')};
+$('reset').onclick=()=>{if(online&&!isHost){toast('Hanya host yang dapat reset.');return}if(!players.length)setupPlayers(+$('count').value);newGame()};
+$('count').onchange=()=>{if(!started&&!online){setupPlayers(+$('count').value);update();draw()}};
+function update(){
+  $('total').textContent=players.length+'/8';
+  $('players').innerHTML=players.map((p,i)=>'<div class="player '+(started&&i===current?'current':'')+'"><span class="dot" style="background:'+p.color+'"></span><span class="pname">'+safeText(p.name)+'</span><small>'+(mode==='snakes'?'Petak '+p.pos:p.tokens.filter(v=>v>=58).length+'/4 HOME')+'</small></div>').join('');
+  if(players.length){
+    $('turnName').textContent=game&&game.over?'🏆 '+game.winnerName:players[current].name+' · Giliran '+(current+1);
+    $('turnHelp').textContent=online?(isHost?'Host mengatur giliran.':'Giliran disinkronkan oleh host.'):(mode==='snakes'?'Lempar dadu dan capai petak 100.':'Lempar 6 untuk mengeluarkan bidak.');
+  }
+  $('roll').disabled=!started||!game||game.over||busy||(online&&!isHost);
+}
+function finishTurn(extra=false){
+  if(game.over){update();return}
+  if(!extra){
+    let attempts=0;
+    do{current=(current+1)%players.length;attempts++}
+    while(players[current].finished&&attempts<=players.length);
+  }
+  update();if(online&&isHost)broadcast();
+}
+$('roll').onclick=()=>{
+  if(!started||busy||!game||game.over)return;
+  if(online&&!isHost){if(hostConn&&hostConn.open)hostConn.send({type:'action',action:'roll',playerId:myId});else toast('Belum terhubung ke host.');return}
+  roll();
 };
-
-let selectedWorld="neon";
-
-
-/* =========================================================
-   THEME
-========================================================= */
-
-function applyWorld(){
-
-    const w=
-        worlds[selectedWorld];
-
-    const root=
-        document.documentElement;
-
-    root.style.setProperty(
-        "--bg1",
-        w.bg1
-    );
-
-    root.style.setProperty(
-        "--bg2",
-        w.bg2
-    );
-
-    root.style.setProperty(
-        "--glow",
-        w.glow
-    );
-
-    root.style.setProperty(
-        "--accent",
-        w.accent
-    );
-
-    root.style.setProperty(
-        "--accent2",
-        w.accent2
-    );
+function roll(){
+  if(busy||game.over)return;
+  busy=true;update();$('dice').textContent='…';
+  setTimeout(()=>{
+    const d=rand(6)+1;$('dice').textContent=d;
+    if(mode==='snakes')moveSnakes(d);else moveLudo(d);
+  },250);
+}
+function moveSnakes(d){
+  const p=players[current],n=p.pos+d;let msg=p.name+' mendapat '+d+'. ';
+  if(n>100)msg+='Butuh angka tepat untuk finis.';
+  else{
+    p.pos=n;msg+='Maju ke '+n+'. ';
+    if(game.snakes[n]){p.pos=game.snakes[n];msg+='🐍 Ular! Turun ke '+p.pos+'. '}
+    else if(game.ladders[n]){p.pos=game.ladders[n];msg+='🪜 Naik ke '+p.pos+'! '}
+    else if(game.events[n]){
+      const e=game.events[n];
+      if(e==='bonus'){let b=rand(3)+1;p.pos=Math.min(100,p.pos+b);msg+='✨ Bonus maju '+b+'. '}
+      if(e==='teleport'&&difficulty!=='classic'){p.pos=Math.max(1,p.pos-rand(12)-4);msg+='🌀 Terlempar mundur! '}
+      if(e==='penalty'&&difficulty==='chaos'){p.pos=Math.max(1,p.pos-rand(6)-3);msg+='💥 Penalti Chaos! '}
+      if(e==='swap'&&difficulty==='chaos'&&players.length>1){const q=players[(current+1)%players.length];[p.pos,q.pos]=[q.pos,p.pos];msg+='🔀 Bertukar posisi dengan '+q.name+'. '}
+      if(e==='shield')msg+='🛡️ Petak perisai!';
+    }
+    if(p.pos>=100){p.pos=100;p.finished=true;game.over=true;game.winnerName=p.name;msg+='🏆 '+p.name+' menang!'}
+  }
+  log(msg);busy=false;
+  if(game.over)$('gameStatus').textContent='FINISHED';
+  else finishTurn();
+  update();draw();if(online&&isHost)broadcast();
 }
 
-applyWorld();
-
-
-/* =========================================================
-   MENU
-========================================================= */
-
-document
-.querySelectorAll(".world")
-.forEach(card=>{
-
-    card.addEventListener(
-        "click",
-        ()=>{
-
-            document
-            .querySelectorAll(".world")
-            .forEach(
-                x=>
-                x.classList.remove(
-                    "active"
-                )
-            );
-
-            card.classList.add(
-                "active"
-            );
-
-            selectedWorld=
-                card.dataset.world;
-
-            applyWorld();
-        }
-    );
-});
-
-
-/* =========================================================
-   BOARD
-========================================================= */
-
-const board=
-document.getElementById("board");
-
-const decor=
-document.getElementById("decor");
-
-const pieces=
-document.getElementById("pieces");
-
-const playersUI=
-document.getElementById("players");
-
-const modeName=
-document.getElementById("modeName");
-
-const turnText=
-document.getElementById("turnText");
-
-const dice=
-document.getElementById("dice");
-
-const rollButton=
-document.getElementById("roll");
-
-const menu=
-document.getElementById("menu");
-
-const gameScreen=
-document.getElementById("gameScreen");
-
-const winScreen=
-document.getElementById("win");
-
-const winText=
-document.getElementById("winText");
-
-const again=
-document.getElementById("again");
-
-
-const playerColors=[
-    "#00f5ff",
-    "#ff2bd6",
-    "#7dff52",
-    "#ffb347"
-];
-
-const playerNames=[
-    "YOU",
-    "NOVA",
-    "LUNA",
-    "ZERO"
-];
-
-let players=[];
-
-let currentPlayer=0;
-
-let moving=false;
-
-let gameOver=false;
-
-
-/* =========================================================
-   SNAKES / LADDERS
-========================================================= */
-
-const maps={
-
-neon:{
-    ladders:{
-        3:22,
-        14:36,
-        29:57,
-        48:79,
-        65:90
-    },
-
-    snakes:{
-        27:9,
-        44:18,
-        53:31,
-        76:46,
-        97:72
+/* LUDO: lintasan luar 0–51, jalur akhir 52–57, finis 58. */
+const route=[];
+for(let i=0;i<56;i++){const a=i/56*Math.PI*2-Math.PI/2;route.push([7.5+Math.cos(a)*5.55,7.5+Math.sin(a)*5.55])}
+function startIndex(i){return Math.floor(i*56/Math.max(2,players.length))}
+function safeSquare(pos){return pos%7===0}
+function moveLudo(d){
+  const p=players[current];
+  let ti=-1;
+  if(d===6)ti=p.tokens.findIndex(v=>v===-1);
+  if(ti<0)ti=p.tokens.findIndex(v=>v>=0&&v<58&&v+d<=58);
+  if(ti<0){
+    log(p.name+' tidak memiliki langkah valid.');
+    busy=false;if(d!==6)finishTurn();else{update();if(online&&isHost)broadcast()}
+    draw();return;
+  }
+  if(p.tokens[ti]===-1){
+    p.tokens[ti]=0;log(p.name+' mengeluarkan bidak '+(ti+1)+'!');
+  }else{
+    p.tokens[ti]+=d;log(p.name+' maju '+d+' dengan bidak '+(ti+1)+'.');
+  }
+  const progress=p.tokens[ti];
+  if(progress<52){
+    const global=(startIndex(current)+progress)%56;
+    if(!safeSquare(global)){
+      players.forEach((op,j)=>{
+        if(j===current)return;
+        op.tokens.forEach((v,k)=>{
+          if(v>=0&&v<52&&(startIndex(j)+v)%56===global){
+            op.tokens[k]=-1;log('💥 '+p.name+' memakan bidak '+op.name+'!');
+          }
+        });
+      });
     }
-},
-
-forest:{
-    ladders:{
-        5:25,
-        18:39,
-        33:58,
-        47:74,
-        61:88
-    },
-
-    snakes:{
-        30:12,
-        42:20,
-        55:37,
-        83:51,
-        95:68
-    }
-},
-
-desert:{
-    ladders:{
-        7:28,
-        21:43,
-        35:62,
-        50:76,
-        69:92
-    },
-
-    snakes:{
-        32:11,
-        46:24,
-        59:34,
-        81:54,
-        99:70
-    }
-},
-
-ocean:{
-    ladders:{
-        4:19,
-        17:41,
-        31:55,
-        49:72,
-        64:87
-    },
-
-    snakes:{
-        26:8,
-        45:23,
-        58:40,
-        78:52,
-        96:71
-    }
-},
-
-inferno:{
-    ladders:{
-        2:21,
-        16:38,
-        28:52,
-        43:70,
-        60:84
-    },
-
-    snakes:{
-        25:7,
-        41:15,
-        57:35,
-        74:49,
-        98:63
-    }
-},
-
-frost:{
-    ladders:{
-        6:26,
-        19:44,
-        34:59,
-        52:78,
-        67:91
-    },
-
-    snakes:{
-        24:10,
-        39:21,
-        56:32,
-        80:48,
-        94:69
-    }
+  }
+  if(p.tokens.every(v=>v===58)){
+    game.over=true;game.winnerName=p.name;log('🏆 '+p.name+' memenangkan Ludo!');
+  }
+  busy=false;
+  if(game.over)$('gameStatus').textContent='FINISHED';
+  else finishTurn(d===6);
+  update();draw();if(online&&isHost)broadcast();
 }
 
+function cell(n){
+  const r=Math.floor((n-1)/10);let col=(n-1)%10;
+  if(r%2)col=9-col;
+  return[40+col*68+34,40+(9-r)*68+34];
+}
+function draw(){
+  const c=$('board'),x=c.getContext('2d');x.clearRect(0,0,760,760);
+  x.fillStyle='#0a1424';x.fillRect(0,0,760,760);
+  if(mode==='snakes')drawSnakes(x);else drawLudo(x);
+}
+function drawSnakes(x){
+  x.fillStyle='#101d31';x.fillRect(32,32,696,696);
+  for(let n=1;n<=100;n++){
+    const [cx,cy]=cell(n);
+    x.fillStyle=n%2?'#1a2b43':'#14243a';x.fillRect(cx-32,cy-32,64,64);
+    x.fillStyle='#92a8c7';x.font='12px system-ui';x.fillText(n,cx-25,cy-17);
+    if(game&&game.snakes&&game.snakes[n]){
+      const [tx,ty]=cell(game.snakes[n]);
+      x.strokeStyle='#ff709b';x.lineWidth=5;x.beginPath();x.moveTo(cx,cy);x.quadraticCurveTo((cx+tx)/2+22,(cy+ty)/2-22,tx,ty);x.stroke();
+      x.fillStyle='#ff709b';x.beginPath();x.arc(cx,cy,6,0,7);x.fill();
+    }
+    if(game&&game.ladders&&game.ladders[n]){
+      const [tx,ty]=cell(game.ladders[n]);x.strokeStyle='#ffd47a';x.lineWidth=4;x.beginPath();x.moveTo(cx-7,cy+10);x.lineTo(tx-7,ty-10);x.moveTo(cx+7,cy+10);x.lineTo(tx+7,ty-10);x.stroke();
+    }
+  }
+  players.forEach((p,i)=>{
+    if(p.pos<=0)return;const [cx,cy]=cell(p.pos);
+    x.fillStyle=p.color;x.strokeStyle='#fff';x.lineWidth=2;x.beginPath();x.arc(cx+(i%3-1)*8,cy+Math.floor(i/3)*8,8,0,7);x.fill();x.stroke();
+  });
+  x.fillStyle='#ffd47a';x.font='bold 18px system-ui';x.fillText('LUDOVERSE · '+difficulty.toUpperCase(),40,25);
+}
+function drawLudo(x){
+  const bases=[[130,130],[380,75],[630,130],[685,380],[630,630],[380,685],[130,630],[75,380]];
+  players.forEach((p,i)=>{
+    const [bx,by]=bases[i];
+    x.globalAlpha=.18;x.fillStyle=p.color;x.beginPath();x.arc(bx,by,60,0,7);x.fill();x.globalAlpha=1;
+    x.strokeStyle=p.color;x.lineWidth=3;x.beginPath();x.arc(bx,by,60,0,7);x.stroke();
+    x.fillStyle=p.color;x.font='bold 11px system-ui';x.textAlign='center';x.fillText(p.name.slice(0,12),bx,by-68);
+    for(let k=0;k<4;k++){
+      const a=k*Math.PI/2,tx=bx+Math.cos(a)*26,ty=by+Math.sin(a)*26;
+      x.fillStyle=p.color;x.beginPath();x.arc(tx,ty,11,0,7);x.fill();
+      x.strokeStyle='#fff';x.lineWidth=2;x.stroke();
+    }
+  });
+  route.forEach((q,i)=>{
+    const cx=q[0]*50+5,cy=q[1]*50+5;
+    x.fillStyle='#192b43';x.strokeStyle='#435773';x.lineWidth=1;x.beginPath();x.arc(cx,cy,13,0,7);x.fill();x.stroke();
+    if(players.some((p,j)=>startIndex(j)===i)){x.fillStyle=players.find((p,j)=>startIndex(j)===i).color;x.beginPath();x.arc(cx,cy,7,0,7);x.fill()}
+  });
+  x.fillStyle='#1b2d47';x.beginPath();x.arc(380,380,63,0,7);x.fill();
+  x.textAlign='center';x.fillStyle='#ffd47a';x.font='bold 25px system-ui';x.fillText('LUDO',380,385);
+  x.fillStyle='#9db1cd';x.font='11px system-ui';x.fillText('BATTLE ARENA',380,405);
+  players.forEach((p,i)=>p.tokens.forEach((v,k)=>{
+    if(v<0)return;let cx,cy;
+    if(v>=52){const a=startIndex(i)/56*Math.PI*2-Math.PI/2;const step=v-51;cx=380+Math.cos(a)*(65-step*8);cy=380+Math.sin(a)*(65-step*8)}
+    else{const q=route[(startIndex(i)+v)%56];cx=q[0]*50+5;cy=q[1]*50+5}
+    x.fillStyle=p.color;x.beginPath();x.arc(cx+(k%2)*5,cy+(k%2)*4,8,0,7);x.fill();x.strokeStyle='#fff';x.lineWidth=2;x.stroke();
+  }));
+}
+
+/* Host-authoritative online room state. */
+function broadcast(){
+  if(!isHost)return;
+  const state={type:'state',mode,difficulty,players,current,game,started,roomCode};
+  connections.forEach(c=>{if(c.open)c.send(state)});
+}
+function applyState(s){
+  mode=s.mode;difficulty=s.difficulty;players=s.players;current=s.current;game=s.game;started=s.started;roomCode=s.roomCode||roomCode;
+  $('difficulty').value=difficulty;setMode(mode);update();draw();
+}
+function createRoom(){
+  disconnect();
+  if(!window.Peer){toast('PeerJS belum termuat. Periksa internet dan muat ulang.');return}
+  const suffix=Math.random().toString(36).slice(2,8).toUpperCase();
+  roomCode='LV-'+suffix;
+  const peerId='lv'+suffix.toLowerCase();
+  peer=new Peer(peerId);online=true;isHost=true;setStatus('CONNECTING…');
+  peer.on('open',id=>{
+    myId=id;setupPlayers(1);players[0].id=id;$('room').value=roomCode;
+    $('count').value='8';newGame();setStatus('HOST · '+roomCode);
+    log('Room siap. Bagikan kode '+roomCode+'.');broadcast();
+  });
+  peer.on('connection',c=>{
+    c.on('data',d=>{
+      if(d.type==='hello'){
+        if(players.length>=8){c.send({type:'reject',message:'Room penuh'});return}
+        if(players.some(p=>p.id===c.peer))return;
+        const p=makePlayer(String(d.name||'Player').slice(0,18),players.length,c.peer);
+        players.push(p);connections.set(c.peer,c);
+        log(p.name+' bergabung.');update();broadcast();
+      }
+      if(d.type==='action'&&d.action==='roll'&&players[current]&&players[current].id===c.peer)roll();
+    });
+    c.on('close',()=>{
+      connections.delete(c.peer);
+      const i=players.findIndex(p=>p.id===c.peer);
+      if(i>=0){log(players[i].name+' terputus.');players.splice(i,1);if(!players.length){started=false;game=null;current=0}else if(current>=players.length)current=0;update();draw();broadcast()}
+    });
+  });
+  peer.on('error',e=>{setStatus('ROOM ERROR');toast('Room gagal dibuat: '+e.type)});
+}
+function joinRoom(){
+  const code=$('room').value.trim().toUpperCase();
+  if(!/^LV-[A-Z0-9]{6}$/.test(code)){toast('Format kode: LV-XXXXXX');return}
+  disconnect();roomCode=code;online=true;isHost=false;setStatus('CONNECTING…');
+  peer=new Peer();
+  peer.on('open',id=>{
+    myId=id;hostConn=peer.connect('lv'+code.slice(3).toLowerCase(),{reliable:true});
+    hostConn.on('open',()=>{
+      hostConn.send({type:'hello',name:($('playerName').value.trim()||'Player').slice(0,18)});
+      setStatus('JOINED · '+code);
+    });
+    hostConn.on('data',d=>{
+      if(d.type==='state')applyState(d);
+      if(d.type==='reject')toast(d.message);
+    });
+    hostConn.on('close',()=>{setStatus('DISCONNECTED');toast('Koneksi host terputus')});
+  });
+  peer.on('error',e=>{setStatus('CONNECTION ERROR');toast('Tidak dapat terhubung. Periksa kode dan host.')});
+}
+$('create').onclick=createRoom;
+$('join').onclick=joinRoom;
+$('copy').onclick=async()=>{
+  const t=$('room').value.trim();if(!t){toast('Buat room atau masukkan kode.');return}
+  try{await navigator.clipboard.writeText(t);toast('Kode disalin: '+t)}
+  catch(e){$('room').select();document.execCommand('copy');toast('Kode disalin')}
 };
-
-
-/* =========================================================
-   CREATE BOARD
-========================================================= */
-
-function createBoard(){
-
-    board.innerHTML="";
-
-    for(
-        let row=9;
-        row>=0;
-        row--
-    ){
-
-        const leftToRight=
-            (9-row)%2===0;
-
-        for(
-            let col=0;
-            col<10;
-            col++
-        ){
-
-            const actualCol=
-                leftToRight
-                    ? col
-                    : 9-col;
-
-            const number=
-                row*10+
-                actualCol+
-                1;
-
-            const cell=
-                document.createElement(
-                    "div"
-                );
-
-            cell.className="cell";
-
-            if(
-                maps[selectedWorld]
-                .ladders[number] ||
-                maps[selectedWorld]
-                .snakes[number]
-            ){
-                cell.classList.add(
-                    "special"
-                );
-            }
-
-            const num=
-                document.createElement(
-                    "div"
-                );
-
-            num.className=
-                "cellNumber";
-
-            num.textContent=
-                number;
-
-            cell.appendChild(num);
-
-            board.appendChild(cell);
-        }
-    }
-
-    createDecor();
-}
-
-
-/* =========================================================
-   DECOR
-========================================================= */
-
-function cellPosition(number){
-
-    const n=
-        number-1;
-
-    const row=
-        Math.floor(n/10);
-
-    let col=
-        n%10;
-
-    if(row%2===1){
-        col=9-col;
-    }
-
-    return {
-        x:
-            (col+.5)*10,
-
-        y:
-            (9-row+.5)*10
-    };
-}
-
-function createDecor(){
-
-    decor.innerHTML="";
-
-    const map=
-        maps[selectedWorld];
-
-    for(
-        const [from,to]
-        of Object.entries(
-            map.ladders
-        )
-    ){
-
-        drawRoute(
-            Number(from),
-            Number(to),
-            "ladder"
-        );
-    }
-
-    for(
-        const [from,to]
-        of Object.entries(
-            map.snakes
-        )
-    ){
-
-        drawRoute(
-            Number(from),
-            Number(to),
-            "snake"
-        );
-    }
-}
-
-function drawRoute(
-    from,
-    to,
-    type
-){
-
-    const a=
-        cellPosition(from);
-
-    const b=
-        cellPosition(to);
-
-    const dx=
-        b.x-a.x;
-
-    const dy=
-        b.y-a.y;
-
-    const length=
-        Math.sqrt(
-            dx*dx+
-            dy*dy
-        );
-
-    const angle=
-        Math.atan2(dy,dx);
-
-    const el=
-        document.createElement(
-            "div"
-        );
-
-    el.className=
-        "route "+type;
-
-    el.textContent=
-        type==="ladder"
-            ? worlds[selectedWorld].ladder
-            : worlds[selectedWorld].snake;
-
-    el.style.left=
-        a.x+"%";
-
-    el.style.top=
-        a.y+"%";
-
-    el.style.width=
-        length+"%";
-
-    el.style.transform=
-        `rotate(${angle}rad)`;
-
-    el.style.color=
-        type==="ladder"
-            ? worlds[selectedWorld].accent
-            : worlds[selectedWorld].accent2;
-
-    el.style.fontSize=
-        "22px";
-
-    el.style.display=
-        "flex";
-
-    el.style.alignItems=
-        "center";
-
-    el.style.justifyContent=
-        "center";
-
-    decor.appendChild(el);
-}
-
-
-/* =========================================================
-   CREATE PLAYERS
-========================================================= */
-
-function createPlayers(){
-    pieces.innerHTML="";
-    playersUI.innerHTML="";
-    players.forEach((p,i)=>{
-        const piece=document.createElement("div");
-        piece.className="piece";
-        piece.id="piece-"+i;
-        piece.style.color=p.color || playerColors[i];
-        piece.style.background=p.color || playerColors[i];
-        piece.textContent=i+1;
-        pieces.appendChild(piece);
-        const card=document.createElement("div");
-        card.className="playerCard";
-        card.id="playerCard-"+i;
-        card.innerHTML=`<div class="playerRow"><span class="dot" style="color:${p.color || playerColors[i]};background:${p.color || playerColors[i]}"></span><b></b><span class="playerScore" id="playerPos-${i}">1</span></div>`;
-        card.querySelector("b").textContent=p.name;
-        playersUI.appendChild(card);
-    });
-    updatePieces();
-}
-
-/* =========================================================
-   PIECE POSITION
-========================================================= */
-
-function updatePieces(){
-
-    players.forEach(
-        (p,i)=>{
-
-            const pos=
-                cellPosition(p.pos);
-
-            const el=
-                document.getElementById(
-                    "piece-"+i
-                );
-
-            /*
-            offset sedikit supaya
-            beberapa pion pada kotak
-            yang sama tetap terlihat
-            */
-
-            const offsetX=
-                [-2,2,-2,2][i];
-
-            const offsetY=
-                [-2,-2,2,2][i];
-
-            el.style.left=
-                `calc(${pos.x}% + ${offsetX}px)`;
-
-            el.style.top=
-                `calc(${pos.y}% + ${offsetY}px)`;
-
-            const score=
-                document.getElementById(
-                    "playerPos-"+i
-                );
-
-            score.textContent=
-                p.pos;
-        }
-    );
-
-    players.forEach(
-        (_,i)=>{
-
-            const card=
-                document.getElementById(
-                    "playerCard-"+i
-                );
-
-            card.classList.toggle(
-                "active",
-                i===currentPlayer
-            );
-        }
-    );
-}
-
-
-/* =========================================================
-   ONLINE ROOM + WEBRTC MULTIPLAYER
-========================================================= */
-const worldHeading=document.getElementById("worldHeading");
-const worldPicker=document.querySelector(".worlds");
-const startButton=document.getElementById("startGame");
-const createRoomBtn=document.getElementById("createRoomBtn");
-const joinRoomBtn=document.getElementById("joinRoomBtn");
-const playerNameInput=document.getElementById("playerNameInput");
-const roomCodeInput=document.getElementById("roomCodeInput");
-const connectionStatus=document.getElementById("connectionStatus");
-const roomCodeLabel=document.getElementById("roomCodeLabel");
-const onlinePlayers=document.getElementById("onlinePlayers");
-const onlineNotice=document.getElementById("onlineNotice");
-const disconnectButton=document.getElementById("disconnect");
-
-let peer=null;
-let hostConnection=null;
-let connections=new Map();
-let isHost=false;
-let roomCode="";
-let myPlayerIndex=-1;
-let roomStarted=false;
-let roomStatus="idle";
-let busy=false;
-let previousGameOver=false;
-let lastRenderedWorld="";
-
-worldHeading.id="worldHeading";
-worldPicker.id="worldPicker";
-startButton.textContent="START ONLINE GAME";
-startButton.disabled=true;
-
-function cleanName(value){
-    const name=String(value||"").trim().replace(/[<>]/g,"").slice(0,16);
-    return name || "Player";
-}
-function randomRoomCode(){
-    const chars="ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
-    let out="";
-    for(let i=0;i<6;i++)out+=chars[Math.floor(Math.random()*chars.length)];
-    return out;
-}
-function setNotice(message,isError=false){
-    onlineNotice.textContent=message;
-    onlineNotice.style.color=isError?"#ff929b":"#7f8aa4";
-}
-function setConnectionStatus(message){connectionStatus.textContent=message;}
-function safeSend(conn,message){
-    try{if(conn && conn.open)conn.send(message);}catch(e){console.warn("Peer send failed",e);}
-}
-function snapshot(){
-    return {type:"state",status:roomStatus,roomCode,selectedWorld,players:players.map(p=>({name:p.name,pos:p.pos,color:p.color,peerId:p.peerId})),currentPlayer,gameOver,busy,winnerIndex:gameOver?players.findIndex(p=>p.pos>=100):-1};
-}
-function broadcast(message){
-    for(const conn of connections.values())safeSend(conn,message);
-}
-function publishState(){if(isHost)broadcast(snapshot());}
-function renderLobbyPlayers(){
-    onlinePlayers.innerHTML="";
-    players.forEach((p,i)=>{
-        const el=document.createElement("span");
-        el.className="onlinePlayer";
-        el.textContent=(i===0?"♛ ":"")+p.name+(p.peerId===peer?.id?" · YOU":"");
-        onlinePlayers.appendChild(el);
-    });
-    setConnectionStatus(roomStarted?"Game sedang berlangsung":(isHost?"Host room · menunggu pemain":"Terhubung ke host"));
-    roomCodeLabel.textContent=roomCode?roomCode:"";
-    startButton.disabled=!(isHost && players.length>=2 && !roomStarted);
-    startButton.textContent=roomStarted?"GAME IN PROGRESS":(isHost?`START GAME · ${players.length}/4`:"WAITING FOR HOST");
-    startButton.style.opacity=(isHost?"1":".5");
-    createRoomBtn.disabled=roomStatus==="connecting";
-    joinRoomBtn.disabled=roomStatus==="connecting";
-    worldHeading.style.display=(!isHost && roomStatus!=="idle")?"none":"";
-    worldPicker.style.display=(!isHost && roomStatus!=="idle")?"none":"";
-}
-function setupPeerEvents(){
-    peer.on("error",err=>{
-        console.error(err);
-        const msg=(err && err.type==="unavailable-id")?"Kode room sudah dipakai. Coba buat room baru.":"Koneksi PeerJS gagal: "+(err?.type||"unknown");
-        setTimeout(()=>{closePeer(false);setNotice(msg,true);setConnectionStatus("Koneksi bermasalah");},0);
-    });
-    peer.on("disconnected",()=>{
-        setConnectionStatus("Terputus dari signaling · mencoba menyambung ulang");
-        try{peer.reconnect();}catch(e){}
-    });
-}
-
-createRoomBtn.addEventListener("click",()=>{
-    if(peer){setNotice("Tutup room yang sedang aktif terlebih dahulu.",true);return;}
-    if(typeof Peer==="undefined"){setNotice("Library PeerJS tidak berhasil dimuat. Periksa koneksi internet.",true);return;}
-    isHost=true;roomStatus="connecting";roomCode=randomRoomCode();myPlayerIndex=0;
-    players=[{name:cleanName(playerNameInput.value),pos:1,color:playerColors[0],peerId:"",bot:false}];
-    setConnectionStatus("Membuat room…");roomCodeLabel.textContent=roomCode;setNotice("Sedang membuka room. Tunggu sampai status host muncul.");renderLobbyPlayers();
-    peer=new Peer("lv"+roomCode,{debug:0});
-    setupPeerEvents();
-    peer.on("open",id=>{
-        players[0].peerId=id;roomStatus="lobby";setConnectionStatus("Room aktif · bagikan kode ini");
-        setNotice("Bagikan kode room kepada teman. Host harus tetap membuka halaman ini.");renderLobbyPlayers();
-    });
-    peer.on("connection",conn=>{
-        conn.on("open",()=>{});
-        conn.on("data",data=>handleHostMessage(conn,data));
-        conn.on("close",()=>{
-            const idx=players.findIndex(p=>p.peerId===conn.peer);
-            connections.delete(conn.peer);
-            if(idx>0 && !roomStarted){players.splice(idx,1);renderLobbyPlayers();broadcast({type:"lobby",players:players.map(p=>({name:p.name,pos:p.pos,color:p.color,peerId:p.peerId})),roomCode});}
-            else if(idx>0 && roomStarted){setNotice((players[idx]?.name||"Pemain")+" terputus. Room tetap berjalan, tetapi gilirannya mungkin perlu dilewati.",true);}
-        });
-    });
-});
-
-joinRoomBtn.addEventListener("click",()=>{
-    if(peer){setNotice("Keluar dari room aktif dahulu.",true);return;}
-    if(typeof Peer==="undefined"){setNotice("Library PeerJS tidak berhasil dimuat. Periksa koneksi internet.",true);return;}
-    const code=roomCodeInput.value.toUpperCase().replace(/[^A-Z0-9]/g,"").slice(0,6);
-    if(code.length!==6){setNotice("Masukkan kode room 6 karakter.",true);return;}
-    roomCode=code;isHost=false;roomStatus="connecting";setConnectionStatus("Menghubungkan ke room "+code+"…");
-    createRoomBtn.disabled=true;joinRoomBtn.disabled=true;setNotice("Mencoba terhubung langsung ke host…");
-    peer=new Peer(undefined,{debug:0});setupPeerEvents();
-    peer.on("open",()=>{
-        hostConnection=peer.connect("lv"+roomCode,{reliable:true,serialization:"json"});
-        hostConnection.on("open",()=>safeSend(hostConnection,{type:"join",name:cleanName(playerNameInput.value)}));
-        hostConnection.on("data",data=>handleGuestMessage(data));
-        hostConnection.on("close",()=>{setNotice("Koneksi ke host terputus.",true);setConnectionStatus("Terputus");});
-        setTimeout(()=>{if(roomStatus==="connecting"){closePeer(false);setNotice("Belum ada jawaban dari host. Pastikan kode benar dan host masih online.",true);setConnectionStatus("Gagal bergabung");}},12000);
-    });
-});
-
-function handleHostMessage(conn,data){
-    if(!data||typeof data!=="object")return;
-    if(data.type==="join"){
-        if(roomStarted){safeSend(conn,{type:"reject",reason:"Game sudah dimulai."});conn.close();return;}
-        if(players.length>=4){safeSend(conn,{type:"reject",reason:"Room sudah penuh (4 pemain)."});conn.close();return;}
-        if(players.some(p=>p.peerId===conn.peer))return;
-        const player={name:cleanName(data.name),pos:1,color:playerColors[players.length],peerId:conn.peer,bot:false};
-        players.push(player);connections.set(conn.peer,conn);
-        safeSend(conn,{type:"welcome",index:players.length-1,state:snapshot()});
-        broadcast({type:"lobby",players:players.map(p=>({name:p.name,pos:p.pos,color:p.color,peerId:p.peerId})),roomCode});
-        renderLobbyPlayers();setNotice(player.name+" bergabung ke room.");return;
-    }
-    if(data.type==="roll"){
-        const index=players.findIndex(p=>p.peerId===conn.peer);
-        if(index<0 || index!==currentPlayer || busy || gameOver || roomStatus!=="playing")return;
-        runTurn(index);
-    }
-    if(data.type==="restart" && conn.peer===players[0]?.peerId && gameOver)startGame();
-}
-function handleGuestMessage(data){
-    if(!data||typeof data!=="object")return;
-    if(data.type==="reject"){
-        setNotice(data.reason||"Tidak bisa bergabung.",true);setConnectionStatus("Gagal bergabung");closePeer(false);return;
-    }
-    if(data.type==="welcome"){
-        myPlayerIndex=data.index;roomStatus=data.state.status||"lobby";roomCode=data.state.roomCode||roomCode;
-        applyNetworkState(data.state);setNotice("Berhasil masuk room. Tunggu host memulai permainan.");renderLobbyPlayers();return;
-    }
-    if(data.type==="lobby"){
-        players=(data.players||[]).map((p,i)=>({...p,color:p.color||playerColors[i],bot:false}));
-        myPlayerIndex=players.findIndex(p=>p.peerId===peer?.id);
-        roomCode=data.roomCode||roomCode;renderLobbyPlayers();return;
-    }
-    if(data.type==="dice"){dice.textContent=diceFace(data.value);playDiceSound();return;}
-    if(data.type==="state")applyNetworkState(data);
-}
-function applyNetworkState(state){
-    if(!state)return;
-    const oldGameOver=gameOver;
-    roomStatus=state.status||roomStatus;
-    roomCode=state.roomCode||roomCode;
-    if(state.selectedWorld && selectedWorld!==state.selectedWorld){selectedWorld=state.selectedWorld;document.querySelectorAll(".world").forEach(el=>el.classList.toggle("active",el.dataset.world===selectedWorld));applyWorld();}
-    const priorPlayers=players.map(p=>({pos:p.pos,name:p.name}));
-    const incoming=(state.players||[]).map((p,i)=>({...p,color:p.color||playerColors[i],bot:false}));
-    const playersChanged=incoming.length!==players.length || incoming.some((p,i)=>!players[i]||players[i].name!==p.name);
-    players=incoming;
-    if(!isHost){
-        players.forEach((p,i)=>{
-            const oldPos=priorPlayers[i]?.pos;
-            if(Number.isFinite(oldPos) && oldPos!==p.pos){
-                playStepSound();
-                const map=maps[selectedWorld];
-                if(map.ladders[oldPos]===p.pos){showFloating(worlds[selectedWorld].ladder+" LUCKY!",worlds[selectedWorld].accent);playSpecialSound();}
-                else if(map.snakes[oldPos]===p.pos){showFloating(worlds[selectedWorld].snake+" OH NO!",worlds[selectedWorld].accent2);playSpecialSound();}
-            }
-        });
-    }
-    currentPlayer=Number.isInteger(state.currentPlayer)?state.currentPlayer:0;
-    gameOver=!!state.gameOver;busy=!!state.busy;roomStarted=roomStatus==="playing"||roomStatus==="finished";
-    if(roomStarted){
-        if(lastRenderedWorld!==selectedWorld){createBoard();lastRenderedWorld=selectedWorld;}
-        if(playersChanged || !document.getElementById("piece-0"))createPlayers();
-        menu.classList.add("hidden");gameScreen.classList.remove("hidden");
-        modeName.textContent=worlds[selectedWorld].name;
-        turnText.textContent=gameOver?"VICTORY":(busy?players[currentPlayer]?.name+" IS MOVING…":(currentPlayer===myPlayerIndex?"YOUR TURN":"WAITING · "+(players[currentPlayer]?.name||"PLAYER")));
-        updatePieces();rollButton.disabled=busy||gameOver||currentPlayer!==myPlayerIndex;
-        if(gameOver){winText.textContent=(players[state.winnerIndex>=0?state.winnerIndex:players.findIndex(p=>p.pos>=100)]?.name||"A player")+" reached tile 100!";winScreen.classList.remove("hidden");if(!oldGameOver)celebration();}
-        else winScreen.classList.add("hidden");
-    }else{
-        menu.classList.remove("hidden");gameScreen.classList.add("hidden");renderLobbyPlayers();
-    }
-    renderLobbyPlayers();
-}
-function closePeer(showMenu=true){
-    try{for(const c of connections.values())c.close();}catch(e){}
-    connections.clear();try{if(hostConnection)hostConnection.close();}catch(e){}
-    try{if(peer)peer.destroy();}catch(e){}
-    peer=null;hostConnection=null;isHost=false;roomCode="";myPlayerIndex=-1;roomStarted=false;roomStatus="idle";busy=false;gameOver=false;players=[];currentPlayer=0;lastRenderedWorld="";
-    roomCodeLabel.textContent="";onlinePlayers.innerHTML="";setConnectionStatus("Belum terhubung · buat room atau masukkan kode");setNotice("Gratis untuk mulai melalui PeerJS Cloud. Koneksi langsung bergantung pada jaringan pemain.");
-    createRoomBtn.disabled=false;joinRoomBtn.disabled=false;startButton.disabled=true;startButton.textContent="START ONLINE GAME";worldHeading.style.display="";worldPicker.style.display="";rollButton.disabled=true;winScreen.classList.add("hidden");
-    if(showMenu){gameScreen.classList.add("hidden");menu.classList.remove("hidden");}
-}
-disconnectButton.addEventListener("click",()=>closePeer(true));
-
-/* =========================================================
-   GAME START — HOST CONTROLS THE GAME STATE
-========================================================= */
-startButton.addEventListener("click",startGame);
-function startGame(){
-    if(!isHost || players.length<2 || roomStarted)return;
-    applyWorld();roomStatus="playing";roomStarted=true;currentPlayer=0;gameOver=false;busy=false;previousGameOver=false;
-    players=players.map(p=>({...p,pos:1,bot:false}));
-    createBoard();lastRenderedWorld=selectedWorld;createPlayers();
-    modeName.textContent=worlds[selectedWorld].name;
-    menu.classList.add("hidden");gameScreen.classList.remove("hidden");winScreen.classList.add("hidden");
-    turnText.textContent="YOUR TURN";rollButton.disabled=false;spawnParticles();
-    publishState();
-}
-
-/* =========================================================
-   DICE
-========================================================= */
-
-rollButton.addEventListener(
-    "click",
-    rollDice
-);
-rollButton.disabled=true;
-
-async function rollDice(){
-    if(busy||gameOver||!roomStarted||currentPlayer!==myPlayerIndex)return;
-    if(isHost){runTurn(myPlayerIndex);}
-    else safeSend(hostConnection,{type:"roll"});
-}
-async function runTurn(index){
-    if(!isHost||busy||gameOver||index!==currentPlayer||roomStatus!=="playing")return;
-    busy=true;rollButton.disabled=true;turnText.textContent=players[index].name+" IS ROLLING…";publishState();
-    const value=await animateDice();
-    broadcast({type:"dice",value});
-    await movePlayer(index,value);
-    if(!gameOver)nextTurn();
-}
-
-function animateDice(){
-
-    return new Promise(
-        resolve=>{
-
-            let ticks=0;
-
-            const interval=
-                setInterval(
-                    ()=>{
-
-                        const n=
-                            Math.floor(
-                                Math.random()*6
-                            )+1;
-
-                        dice.textContent=
-                            diceFace(n);
-
-                        dice.style.transform=
-                            `rotate(${Math.random()*20-10}deg) scale(${1+Math.random()*.15})`;
-
-                        ticks++;
-
-                        if(ticks>=12){
-
-                            clearInterval(
-                                interval
-                            );
-
-                            const result=
-                                Math.floor(
-                                    Math.random()*6
-                                )+1;
-
-                            dice.textContent=
-                                diceFace(result);
-
-                            dice.style.transform=
-                                "rotate(0) scale(1)";
-
-                            playDiceSound();
-
-                            resolve(
-                                result
-                            );
-                        }
-
-                    },
-                    70
-                );
-        }
-    );
-}
-
-function diceFace(n){
-
-    return [
-        "",
-        "⚀",
-        "⚁",
-        "⚂",
-        "⚃",
-        "⚄",
-        "⚅"
-    ][n];
-}
-
-
-/* =========================================================
-   MOVE
-========================================================= */
-
-async function movePlayer(
-    index,
-    steps
-){
-
-    const p=
-        players[index];
-
-    for(
-        let i=0;
-        i<steps;
-        i++
-    ){
-
-        if(
-            p.pos>=100
-        )break;
-
-        p.pos++;
-
-        updatePieces();
-        publishState();
-
-        playStepSound();
-
-        await wait(
-            150
-        );
-    }
-
-    if(p.pos===100){
-
-        win(index);
-
-        return;
-    }
-
-    const map=
-        maps[selectedWorld];
-
-    if(
-        map.ladders[p.pos]
-    ){
-
-        const old=
-            p.pos;
-
-        const target=
-            map.ladders[p.pos];
-
-        await wait(300);
-
-        p.pos=target;
-
-        updatePieces();
-        publishState();
-
-        showFloating(
-            worlds[selectedWorld].ladder+
-            " LUCKY!",
-            worlds[selectedWorld].accent
-        );
-
-        playSpecialSound();
-
-        await wait(650);
-    }
-
-    if(
-        map.snakes[p.pos]
-    ){
-
-        const target=
-            map.snakes[p.pos];
-
-        await wait(300);
-
-        p.pos=target;
-
-        updatePieces();
-        publishState();
-
-        showFloating(
-            worlds[selectedWorld].snake+
-            " OH NO!",
-            worlds[selectedWorld].accent2
-        );
-
-        playSpecialSound();
-
-        await wait(650);
-    }
-
-    if(
-        p.pos===100
-    ){
-
-        win(index);
-    }
-}
-
-
-/* =========================================================
-   TURN
-========================================================= */
-
-function nextTurn(){
-    if(!isHost||gameOver)return;
-    currentPlayer=(currentPlayer+1)%players.length;
-    busy=false;updatePieces();
-    turnText.textContent=currentPlayer===myPlayerIndex?"YOUR TURN":"WAITING · "+players[currentPlayer].name;
-    rollButton.disabled=currentPlayer!==myPlayerIndex;
-    publishState();
-}
-function win(index){
-    if(gameOver)return;
-    gameOver=true;busy=false;roomStatus="finished";roomStarted=true;
-    const p=players[index];
-    winText.textContent=p.name+" reached tile 100!";
-    winScreen.classList.remove("hidden");rollButton.disabled=true;celebration();
-    publishState();
-}
-again.addEventListener("click",()=>{
-    if(isHost && gameOver){
-        roomStatus="lobby";roomStarted=false;gameOver=false;busy=false;players=players.map(p=>({...p,pos:1}));
-        winScreen.classList.add("hidden");gameScreen.classList.add("hidden");menu.classList.remove("hidden");
-        renderLobbyPlayers();publishState();setNotice("Permainan selesai. Host dapat memulai ulang dari room yang sama.");
-    }else if(!isHost){setNotice("Tunggu host untuk memulai ulang.");}
-});
-
-/* =========================================================
-   FLOATING MESSAGE
-========================================================= */
-
-function showFloating(
-    text,
-    color
-){
-
-    const el=
-        document.createElement(
-            "div"
-        );
-
-    el.textContent=text;
-
-    el.style.position=
-        "fixed";
-
-    el.style.left="50%";
-    el.style.top="38%";
-
-    el.style.transform=
-        "translate(-50%,-50%) scale(.7)";
-
-    el.style.zIndex="100";
-
-    el.style.fontSize=
-        "clamp(25px,6vw,70px)";
-
-    el.style.fontWeight="1000";
-
-    el.style.color=color;
-
-    el.style.textShadow=
-        `0 0 40px ${color}`;
-
-    el.style.pointerEvents=
-        "none";
-
-    document.body.appendChild(el);
-
-    requestAnimationFrame(
-        ()=>{
-            el.style.transition=
-                "1s cubic-bezier(.2,.8,.2,1)";
-
-            el.style.transform=
-                "translate(-50%,-80%) scale(1)";
-
-            el.style.opacity="0";
-        }
-    );
-
-    setTimeout(
-        ()=>el.remove(),
-        1100
-    );
-}
-
-
-/* =========================================================
-   PARTICLES
-========================================================= */
-
-let particleList=[];
-
-function spawnParticles(){
-
-    particleList=[];
-
-    for(
-        let i=0;
-        i<120;
-        i++
-    ){
-
-        particleList.push({
-            x:Math.random()*W,
-            y:Math.random()*H,
-
-            vx:
-                (Math.random()-.5)*.3,
-
-            vy:
-                (Math.random()-.5)*.3,
-
-            size:
-                Math.random()*2+0.5,
-
-            alpha:
-                Math.random()*.7+.1
-        });
-    }
-}
-
-function drawParticles(){
-
-    ctx.clearRect(
-        0,
-        0,
-        W,
-        H
-    );
-
-    const w=
-        worlds[selectedWorld];
-
-    for(
-        const p
-        of particleList
-    ){
-
-        p.x+=p.vx;
-        p.y+=p.vy;
-
-        if(p.x<0)p.x=W;
-        if(p.x>W)p.x=0;
-
-        if(p.y<0)p.y=H;
-        if(p.y>H)p.y=0;
-
-        ctx.fillStyle=
-            w.accent;
-
-        ctx.globalAlpha=
-            p.alpha;
-
-        ctx.beginPath();
-
-        ctx.arc(
-            p.x,
-            p.y,
-            p.size,
-            0,
-            Math.PI*2
-        );
-
-        ctx.fill();
-    }
-
-    ctx.globalAlpha=1;
-
-    requestAnimationFrame(
-        drawParticles
-    );
-}
-
-drawParticles();
-
-
-/* =========================================================
-   CELEBRATION
-========================================================= */
-
-function celebration(){
-
-    for(
-        let i=0;
-        i<180;
-        i++
-    ){
-
-        const angle=
-            Math.random()*
-            Math.PI*2;
-
-        const speed=
-            2+Math.random()*8;
-
-        particleList.push({
-
-            x:W/2,
-            y:H/2,
-
-            vx:
-                Math.cos(angle)*speed,
-
-            vy:
-                Math.sin(angle)*speed,
-
-            size:
-                2+Math.random()*4,
-
-            alpha:1
-        });
-    }
-}
-
-
-/* =========================================================
-   AUDIO
-========================================================= */
-
-let audioContext=null;
-
-function audio(){
-
-    if(!audioContext){
-
-        audioContext=
-            new (
-                window.AudioContext ||
-                window.webkitAudioContext
-            )();
-    }
-}
-
-function tone(
-    frequency,
-    duration,
-    type="sine",
-    volume=.04
-){
-
-    audio();
-
-    const osc=
-        audioContext.createOscillator();
-
-    const gain=
-        audioContext.createGain();
-
-    osc.type=type;
-
-    osc.frequency.value=
-        frequency;
-
-    gain.gain.value=volume;
-
-    osc.connect(gain);
-    gain.connect(
-        audioContext.destination
-    );
-
-    osc.start();
-
-    gain.gain.exponentialRampToValueAtTime(
-        .001,
-        audioContext.currentTime+
-        duration
-    );
-
-    osc.stop(
-        audioContext.currentTime+
-        duration
-    );
-}
-
-function playDiceSound(){
-
-    tone(
-        180,
-        .08,
-        "square",
-        .025
-    );
-
-    setTimeout(
-        ()=>{
-            tone(
-                400,
-                .12,
-                "sine",
-                .035
-            );
-        },
-        80
-    );
-}
-
-function playStepSound(){
-
-    tone(
-        250,
-        .035,
-        "sine",
-        .012
-    );
-}
-
-function playSpecialSound(){
-
-    tone(
-        500,
-        .1,
-        "sine",
-        .04
-    );
-
-    setTimeout(
-        ()=>{
-            tone(
-                800,
-                .18,
-                "sine",
-                .04
-            );
-        },
-        100
-    );
-}
-
-
-/* =========================================================
-   UTIL
-========================================================= */
-
-function wait(ms){
-
-    return new Promise(
-        resolve=>
-        setTimeout(
-            resolve,
-            ms
-        )
-    );
-}
-
-
-/* =========================================================
-   INITIAL
-========================================================= */
-
-applyWorld();
+setMode('snakes');setupPlayers(4);update();draw();setStatus('LOCAL PLAY READY');
+})();
 </script>
-
-<div id="p2pDisclaimer" style="position:fixed;right:10px;bottom:5px;z-index:50;color:rgba(220,228,245,.35);font:9px/1.3 system-ui;pointer-events:none">WEBRTC P2P · SIGNALING: PEERJS CLOUD</div>
 </body>
 </html>
