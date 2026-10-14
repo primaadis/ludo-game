@@ -1,959 +1,1510 @@
-
+```html
 <!DOCTYPE html>
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#efe4cd">
-<title>LUDOVERSE — The Board Game Club</title>
-<style>
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Playfair+Display:wght@500;600;700;800&display=swap');
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="theme-color" content="#10101c">
+<title>LUDOVERSE — Online Adventure</title>
 
+<style>
 :root {
-  --paper:#f4ead6;
-  --paper2:#e8d7b8;
-  --ink:#302b23;
-  --muted:#837765;
-  --red:#a64f43;
-  --green:#54765b;
-  --blue:#54758b;
-  --gold:#bc9149;
-  --line:#d5c3a1;
-  --shadow:0 20px 60px #392c1b1a;
-  --serif:"Playfair Display",Georgia,serif;
-  --sans:"DM Sans",sans-serif;
+  --bg1:#080b19;
+  --bg2:#171126;
+  --glow:rgba(0,245,255,.15);
+  --accent:#00f5ff;
+  --accent2:#ff2bd6;
+  --gold:#e8c887;
+  --panel:rgba(12,15,29,.88);
+  --muted:#929bb1;
 }
-*{box-sizing:border-box}
-html{min-height:100%;background:var(--paper)}
-body{
-  margin:0;min-height:100vh;color:var(--ink);
-  font-family:var(--sans);
+* {
+  box-sizing:border-box;
+  -webkit-tap-highlight-color:transparent;
+}
+html,body {
+  margin:0;width:100%;height:100%;
+  overflow:hidden;color:#fff;
+  font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif;
+  background:#080b19;
+}
+button,input,select {font:inherit}
+button {cursor:pointer}
+button:disabled {opacity:.45;cursor:not-allowed}
+#background {
+  position:fixed;inset:0;z-index:0;
   background:
-    radial-gradient(ellipse at 10% 0%,#fff9e7 0,transparent 40%),
-    radial-gradient(ellipse at 100% 100%,#dfc8a3 0,transparent 38%),
-    var(--paper);
+    radial-gradient(ellipse at 50% 15%,var(--glow),transparent 55%),
+    linear-gradient(135deg,var(--bg1),var(--bg2));
+  transition:background .7s ease;
 }
-button,input,select{font:inherit}
-button{cursor:pointer}
-button:focus-visible,input:focus-visible,select:focus-visible{
-  outline:3px solid #bc914977;outline-offset:3px
+#background:after {
+  content:"";position:absolute;inset:0;
+  pointer-events:none;
+  background:radial-gradient(ellipse,transparent 25%,#0008 100%);
 }
-button:disabled{opacity:.45;cursor:not-allowed}
-.hidden{display:none!important}
-.wrap{width:min(1260px,100%);margin:auto;padding:22px}
-.topbar{
-  display:flex;align-items:center;justify-content:space-between;gap:16px;
-  padding:7px 0 22px;border-bottom:1px solid var(--line)
+#particles {position:fixed;inset:0;width:100%;height:100%;pointer-events:none}
+#app {position:relative;width:100%;height:100%;z-index:1}
+.screen {
+  position:absolute;inset:0;
+  display:flex;align-items:center;justify-content:center;
+  padding:20px;
+  opacity:1;transform:translateY(0) scale(1);
+  transition:opacity .35s ease,transform .35s ease;
 }
-.brand{display:flex;align-items:center;gap:12px}
-.brandMark{
-  width:46px;height:46px;display:grid;place-items:center;
-  border-radius:50%;background:var(--ink);color:var(--paper);
-  border:3px double var(--gold);font-size:23px
+.screen.hidden {
+  opacity:0;pointer-events:none;
+  transform:translateY(12px) scale(.985);
 }
-.brandName{font:700 25px var(--serif);letter-spacing:.5px}
-.brandSub{font-size:10px;letter-spacing:2.6px;color:var(--muted);margin-top:3px}
-.topTag{
-  font-size:10px;letter-spacing:2px;text-transform:uppercase;
-  color:var(--muted);border:1px solid var(--line);padding:9px 12px;border-radius:99px
+.menuCard {
+  width:min(1050px,96vw);max-height:94dvh;overflow:auto;
+  padding:clamp(20px,4vw,40px);
+  border:1px solid #ffffff20;border-radius:28px;
+  background:linear-gradient(135deg,#0a0d1eeF,#151025eF);
+  box-shadow:0 30px 100px #0009,0 0 70px var(--glow);
+  backdrop-filter:blur(24px);
+  scrollbar-width:thin;
 }
-.hero{text-align:center;padding:36px 0 25px}
-.eyebrow{font-size:10px;letter-spacing:4px;color:var(--red);font-weight:800}
-h1{font:700 clamp(34px,6vw,60px)/1.05 var(--serif);margin:12px 0}
-.hero p{max-width:570px;margin:0 auto;color:var(--muted);font-size:13px;line-height:1.8}
-.panel{
-  background:#fffaf0b8;border:1px solid var(--line);border-radius:20px;
-  box-shadow:var(--shadow);padding:23px
+.brand{text-align:center}
+.brandSmall {
+  font-size:10px;letter-spacing:5px;color:var(--gold);
 }
-.sectionHead{
-  display:flex;align-items:center;justify-content:space-between;gap:10px;
-  margin-bottom:15px
+.logo {
+  margin:14px 0 0;
+  font-size:clamp(42px,9vw,88px);
+  line-height:.95;font-weight:1000;letter-spacing:-.065em;
+  background:linear-gradient(90deg,var(--accent),#fff,var(--accent2));
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+  filter:drop-shadow(0 0 24px var(--glow));
 }
-.sectionHead h2{font:700 21px var(--serif);margin:0}
-.smallLabel{font-size:10px;letter-spacing:2px;color:var(--muted);font-weight:800}
-.worldGrid{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:10px}
-.world{
-  border:1px solid var(--line);background:#f7eedf;border-radius:14px;
-  min-height:104px;padding:13px 8px;text-align:center;color:var(--ink);
-  transition:transform .2s,border-color .2s,background .2s
+.description {
+  max-width:600px;margin:20px auto 0;
+  color:var(--muted);font-size:13px;line-height:1.8;
 }
-.world:hover{transform:translateY(-3px)}
-.world.active{border-color:var(--red);background:#f0dfc4;box-shadow:inset 0 0 0 1px var(--red)}
-.worldIcon{font-size:29px;display:block;margin-bottom:8px}
-.worldName{font:700 13px var(--serif)}
-.worldDesc{font-size:9px;color:var(--muted);margin-top:4px}
-.setupGrid{display:grid;grid-template-columns:1.1fr 1fr;gap:16px;margin-top:16px}
-.fieldLabel{display:block;font-size:10px;font-weight:800;letter-spacing:1.6px;color:var(--muted);margin:0 0 7px}
-.field{
-  width:100%;border:1px solid var(--line);background:#fffaf0;color:var(--ink);
-  padding:12px 13px;border-radius:10px;min-width:0
+.sectionTitle {
+  margin-top:28px;font-size:10px;letter-spacing:3px;
+  color:var(--gold);font-weight:800;
 }
-.field:focus{border-color:var(--gold)}
-.row{display:flex;gap:9px}
-.row>*{flex:1;min-width:0}
-.stack{display:grid;gap:12px}
-.modeChoices{display:grid;grid-template-columns:1fr 1fr;gap:9px}
-.modeChoice{
-  border:1px solid var(--line);background:#f7eedf;border-radius:12px;
-  text-align:left;padding:13px;color:var(--ink)
+.worlds {
+  display:grid;grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:10px;margin-top:12px;
 }
-.modeChoice.active{border-color:var(--red);background:#f1dfc6}
-.modeChoice b{display:block;font:700 15px var(--serif)}
-.modeChoice span{display:block;font-size:10px;color:var(--muted);margin-top:4px}
-.btn{
-  border:1px solid var(--ink);background:var(--ink);color:#fff5e4;
-  padding:12px 16px;border-radius:10px;font-weight:800;font-size:11px;
-  letter-spacing:1px;transition:transform .15s,background .15s
+.world {
+  min-height:115px;padding:15px;
+  border:1px solid #ffffff12;border-radius:16px;
+  background:#ffffff06;cursor:pointer;
+  transition:transform .25s,border-color .25s,background .25s;
 }
-.btn:hover{transform:translateY(-1px)}
-.btn.secondary{background:transparent;color:var(--ink);border-color:var(--line)}
-.btn.red{background:var(--red);border-color:var(--red)}
-.btn.gold{background:var(--gold);border-color:var(--gold);color:#2f2517}
-.btn.full{width:100%}
-.divider{height:1px;background:var(--line);margin:17px 0}
-.notice{font-size:11px;line-height:1.65;color:var(--muted);min-height:17px}
-.statusPill{
-  display:inline-flex;align-items:center;gap:7px;font-size:10px;
-  border:1px solid var(--line);border-radius:99px;padding:7px 10px;color:var(--muted)
+.world:hover {transform:translateY(-3px);border-color:var(--accent)}
+.world.active {
+  border-color:var(--accent);
+  background:color-mix(in srgb,var(--accent) 10%,transparent);
+  box-shadow:0 0 22px color-mix(in srgb,var(--accent) 12%,transparent);
 }
-.statusDot{width:7px;height:7px;border-radius:50%;background:var(--green)}
-/* character selection */
-.characterGrid{display:grid;grid-template-columns:repeat(6,1fr);gap:8px}
-.character{
-  border:1px solid var(--line);background:#f8efdf;border-radius:12px;
-  padding:10px 4px;text-align:center;color:var(--ink)
+.worldIcon {font-size:30px}
+.worldName {margin-top:7px;font-weight:900;font-size:13px}
+.worldDesc {margin-top:4px;color:var(--muted);font-size:10px}
+.field {
+  width:100%;min-width:0;padding:13px 14px;
+  color:#fff;background:#ffffff09;
+  border:1px solid #ffffff20;border-radius:12px;
+  outline:none;
 }
-.character.active{border-color:var(--red);background:#f0ddc1;box-shadow:inset 0 0 0 1px var(--red)}
-.character .avatar{font-size:28px;display:block}
-.character small{display:block;font-size:9px;color:var(--muted);margin-top:5px}
-#game{padding-top:17px}
-.gameTop{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:14px}
-.gameTitle{font:700 26px var(--serif)}
-.gameSub{font-size:11px;color:var(--muted);margin-top:3px}
-.gameLayout{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:17px;align-items:start}
-.boardPanel{padding:14px;background:#ead8b7;border:1px solid #cdb68d;border-radius:19px;box-shadow:0 14px 35px #5b43251b}
-.boardFrame{
-  position:relative;aspect-ratio:1;max-width:740px;margin:auto;
-  border:8px ridge #b38a4f;border-radius:5px;overflow:hidden;
-  background:#f2e4c8;box-shadow:inset 0 0 0 3px #f8f0df,0 6px 15px #4c351e33
+.field:focus {border-color:var(--accent)}
+.onlineBox {
+  margin-top:20px;padding:18px;
+  border:1px solid #ffffff16;border-radius:18px;
+  background:#ffffff05;
 }
-#boardSvg{display:block;width:100%;height:100%}
-.sideStack{display:grid;gap:14px}
-.turnPanel{background:#fff8e9;border:1px solid var(--line);border-radius:16px;padding:18px}
-.turnName{font:700 23px var(--serif);margin:8px 0}
-.turnHint{font-size:11px;color:var(--muted);line-height:1.7}
-.diceRow{display:flex;align-items:center;gap:14px;margin-top:16px}
-.dice{
-  width:76px;height:76px;flex:0 0 76px;border-radius:15px;
-  border:1px solid #d0c4ae;background:linear-gradient(145deg,#fffef9,#e9dfcc);
-  box-shadow:0 5px 0 #c8b99e,0 9px 16px #59462b20,inset 0 1px white;
-  display:grid;place-items:center;position:relative;transition:transform .15s
+.onlineGrid {
+  display:grid;grid-template-columns:1fr 1fr;gap:12px;
 }
-.dice.rolling{animation:shake .12s infinite alternate}
-@keyframes shake{to{transform:rotate(9deg) scale(1.04)}}
-.diceDots{width:48px;height:48px;display:grid;grid-template:repeat(3,1fr)/repeat(3,1fr);gap:3px}
-.pip{width:10px;height:10px;border-radius:50%;background:#39342d;align-self:center;justify-self:center;box-shadow:inset 0 1px 1px #0005}
-.diceInfo{font-size:10px;color:var(--muted);line-height:1.7}
-.playersList{display:grid;gap:8px}
-.playerLine{
-  display:flex;align-items:center;gap:9px;padding:10px;border-radius:11px;
-  border:1px solid #e4d6bb;background:#fff9ec
+.onlineGrid label {
+  display:block;margin-bottom:7px;
+  color:var(--muted);font-size:11px;
 }
-.playerLine.active{border-color:var(--gold);background:#f5e8c9}
-.playerAvatar{font-size:25px;width:32px;text-align:center}
-.playerInfo{flex:1;min-width:0}
-.playerInfo b{display:block;font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.playerInfo small{font-size:9px;color:var(--muted)}
-.playerPos{font-size:10px;font-weight:800;color:var(--red)}
-.log{max-height:115px;overflow:auto;font-size:10px;line-height:1.7;color:var(--muted)}
-.gameActions{display:flex;gap:8px;flex-wrap:wrap}
-.gameActions .btn{flex:1}
-.footer{text-align:center;font-size:10px;color:#9b8a70;padding:25px 0 10px}
-#toast{
-  position:fixed;z-index:100;left:50%;bottom:25px;transform:translate(-50%,20px);
-  opacity:0;pointer-events:none;background:var(--ink);color:#fff4df;padding:12px 17px;
-  border-radius:99px;font-size:12px;box-shadow:var(--shadow);transition:.25s;
-  max-width:90vw;text-align:center
+.actions {display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
+.btn {
+  border:1px solid #ffffff1c;border-radius:12px;
+  padding:13px 16px;color:#fff;
+  background:#ffffff0c;transition:transform .2s,filter .2s;
 }
-#toast.show{opacity:1;transform:translate(-50%,0)}
-#winOverlay{
-  position:fixed;inset:0;z-index:80;background:#302b23a8;display:grid;place-items:center;padding:20px
+.btn:hover {transform:translateY(-2px);filter:brightness(1.15)}
+.btnPrimary {
+  color:#071019;font-weight:950;border:0;
+  background:linear-gradient(100deg,var(--accent),var(--accent2));
 }
-.winCard{width:min(420px,100%);background:var(--paper);border:4px double var(--gold);border-radius:20px;padding:32px;text-align:center;box-shadow:0 30px 90px #0005}
-.winEmoji{font-size:55px}
-.winCard h2{font:700 35px var(--serif);margin:8px}
-.winCard p{font-size:12px;color:var(--muted);line-height:1.7}
-@media(max-width:900px){
- .worldGrid{grid-template-columns:repeat(3,1fr)}
- .gameLayout{grid-template-columns:1fr}
- .sideStack{grid-template-columns:repeat(2,minmax(0,1fr))}
- .boardPanel{max-width:760px;width:100%;margin:auto}
+.btnGold {
+  color:#19140a;font-weight:900;border:0;
+  background:linear-gradient(100deg,#e8c887,#fff0b9);
 }
-@media(max-width:560px){
- .wrap{padding:13px}
- .topbar{padding-bottom:14px}
- .brandName{font-size:21px}
- .brandSub{font-size:8px;letter-spacing:1.6px}
- .topTag{font-size:8px;padding:7px}
- .hero{padding:25px 0 20px}
- .panel{padding:15px}
- .worldGrid{gap:7px}
- .world{min-height:91px;padding:10px 4px}
- .worldIcon{font-size:24px}
- .worldName{font-size:11px}
- .worldDesc{font-size:8px}
- .setupGrid{grid-template-columns:1fr}
- .characterGrid{grid-template-columns:repeat(3,1fr)}
- .gameTitle{font-size:22px}
- .gameTop{align-items:flex-start}
- .gameTop .btn{padding:9px;font-size:9px}
- .boardPanel{padding:7px}
- .boardFrame{border-width:5px}
- .sideStack{grid-template-columns:1fr}
- .turnPanel{padding:14px}
- .dice{width:64px;height:64px;flex-basis:64px}
- .diceDots{transform:scale(.85)}
+.btnWide {width:100%;margin-top:14px}
+#connectionStatus {
+  margin-top:12px;font-size:12px;color:var(--muted);
+  line-height:1.6;overflow-wrap:anywhere;
 }
-@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+#roomDisplay {display:none;margin-top:12px}
+.roomCode {
+  font-size:clamp(25px,5vw,40px);font-weight:1000;
+  letter-spacing:7px;color:var(--gold);
+}
+#lobbyPlayers {margin-top:10px;color:var(--muted);font-size:12px;line-height:1.9}
+#gameScreen {display:block;padding:0}
+#topbar {
+  position:absolute;top:12px;left:12px;right:12px;
+  display:flex;align-items:center;justify-content:space-between;
+  gap:10px;z-index:10;pointer-events:none;
+}
+.glass {
+  padding:10px 13px;border:1px solid #ffffff18;
+  border-radius:13px;background:#070a15b8;
+  backdrop-filter:blur(14px);box-shadow:0 8px 25px #0004;
+}
+.modeName {font-size:13px;font-weight:900}
+.turnText {margin-top:4px;font-size:10px;letter-spacing:1px;color:var(--gold)}
+#boardWrap {
+  position:absolute;left:50%;top:50%;
+  transform:translate(-50%,-50%);
+  width:min(84vw,72dvh,660px);aspect-ratio:1;
+  filter:drop-shadow(0 24px 55px #0009);
+  transition:transform .35s ease;
+}
+#board {
+  position:absolute;inset:0;display:grid;
+  grid-template-columns:repeat(10,1fr);
+  grid-template-rows:repeat(10,1fr);
+  border:2px solid #ffffff30;border-radius:17px;
+  overflow:hidden;background:#0c1224;
+}
+.cell {
+  position:relative;display:flex;align-items:center;justify-content:center;
+  border:1px solid #ffffff0c;
+  color:#ffffff99;font-size:clamp(7px,1.25vw,12px);
+  font-weight:900;transition:background .3s;
+}
+.cell:nth-child(odd){background:#ffffff08}
+.cell:nth-child(even){background:#ffffff02}
+.cell.special {background:color-mix(in srgb,var(--accent) 14%,transparent)}
+.cellNumber {position:absolute;top:3px;left:4px;opacity:.8}
+#decor,#pieces {position:absolute;inset:0;pointer-events:none}
+#decor {z-index:3;overflow:hidden}
+#pieces {z-index:5}
+.route {
+  position:absolute;display:flex;align-items:center;justify-content:center;
+  height:5px;transform-origin:left center;border-radius:10px;
+  font-size:clamp(12px,2vw,22px);filter:drop-shadow(0 0 5px currentColor);
+}
+.piece {
+  position:absolute;width:6.2%;height:6.2%;min-width:17px;min-height:17px;
+  display:flex;align-items:center;justify-content:center;
+  border:2px solid #fff;border-radius:50%;
+  transform:translate(-50%,-50%);
+  box-shadow:0 0 13px currentColor,0 4px 8px #0008;
+  font-size:10px;font-weight:1000;
+  transition:left .23s cubic-bezier(.2,.8,.2,1),top .23s cubic-bezier(.2,.8,.2,1);
+}
+.piece:after {
+  content:"";position:absolute;top:17%;left:17%;width:32%;height:32%;
+  background:#fff;border-radius:50%;opacity:.85;
+}
+#players {
+  position:absolute;top:78px;right:12px;z-index:8;
+  display:flex;flex-direction:column;gap:7px;max-width:180px;
+}
+.playerCard {
+  min-width:120px;padding:9px 11px;border-radius:11px;
+  border:1px solid #ffffff18;background:#080b18bd;
+  backdrop-filter:blur(10px);transition:border-color .25s,transform .25s;
+}
+.playerCard.active {
+  border-color:var(--accent);
+  box-shadow:0 0 20px color-mix(in srgb,var(--accent) 20%,transparent);
+  transform:translateX(-3px);
+}
+.playerRow {display:flex;align-items:center;gap:7px;font-size:11px}
+.dot {width:9px;height:9px;border-radius:50%;flex:none;box-shadow:0 0 9px currentColor}
+.playerScore {margin-left:auto;color:var(--muted);font-size:10px}
+#diceArea {
+  position:absolute;left:50%;bottom:17px;transform:translateX(-50%);
+  display:flex;align-items:center;gap:10px;z-index:12;
+}
+#dice {
+  width:62px;height:62px;display:flex;align-items:center;justify-content:center;
+  border-radius:15px;border:1px solid #ffffff24;
+  background:linear-gradient(135deg,#ffffff1d,#ffffff05);
+  box-shadow:0 12px 30px #0006,inset 0 0 20px #fff08;
+  font-size:30px;backdrop-filter:blur(12px);
+  transition:transform .12s;
+}
+#dice.rolling {animation:diceShake .12s infinite alternate}
+@keyframes diceShake {
+  from{transform:rotate(-8deg) scale(.96)}
+  to{transform:rotate(8deg) scale(1.05)}
+}
+#roll {min-width:120px}
+#toast {
+  position:absolute;left:50%;top:40%;z-index:20;
+  transform:translate(-50%,-50%) scale(.8);
+  opacity:0;pointer-events:none;
+  font-size:clamp(23px,5vw,52px);font-weight:1000;
+  text-shadow:0 0 28px currentColor;
+  transition:opacity .25s,transform .4s cubic-bezier(.2,.8,.2,1);
+  text-align:center;white-space:nowrap;
+}
+#toast.show {opacity:1;transform:translate(-50%,-50%) scale(1)}
+#win {
+  position:absolute;inset:0;z-index:30;
+  display:flex;align-items:center;justify-content:center;
+  padding:20px;background:#000a;backdrop-filter:blur(12px);
+  opacity:1;transition:opacity .3s;
+}
+#win.hidden {opacity:0;pointer-events:none}
+.winCard {
+  width:min(420px,94vw);padding:35px;text-align:center;
+  border:1px solid #ffffff25;border-radius:24px;
+  background:#0c1020f2;box-shadow:0 30px 90px #000a;
+  animation:winEnter .55s cubic-bezier(.2,.8,.2,1);
+}
+@keyframes winEnter {
+  from{transform:translateY(18px) scale(.9);opacity:0}
+  to{transform:translateY(0) scale(1);opacity:1}
+}
+.winTitle {
+  font-size:clamp(42px,9vw,70px);font-weight:1000;
+  background:linear-gradient(90deg,var(--accent),#fff,var(--accent2));
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+}
+.winText {margin-top:10px;color:var(--muted);line-height:1.6}
+#networkBadge {
+  position:absolute;left:12px;bottom:15px;z-index:10;
+  max-width:42vw;font-size:10px;color:#b8c3d8;
+  background:#070a15b8;padding:8px 10px;border-radius:10px;
+  border:1px solid #ffffff18;overflow-wrap:anywhere;
+}
+@media(max-width:650px) {
+  .screen{padding:10px}
+  .menuCard{padding:20px;border-radius:20px}
+  .worlds{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .world{min-height:100px;padding:12px}
+  .worldIcon{font-size:25px}
+  .onlineGrid{grid-template-columns:1fr}
+  #boardWrap{width:min(94vw,64dvh)}
+  #players{top:70px;right:6px;gap:5px}
+  .playerCard{min-width:95px;padding:6px 8px}
+  .playerRow{font-size:10px}
+  #topbar{top:7px;left:7px;right:7px}
+  .glass{padding:7px 9px}
+  #diceArea{bottom:8px;gap:7px}
+  #dice{width:52px;height:52px;font-size:25px}
+  #roll{min-width:105px;padding:12px}
+  #networkBadge{left:7px;bottom:8px;max-width:34vw;font-size:9px}
+}
+@media(prefers-reduced-motion:reduce) {
+  *,*:before,*:after {
+    animation-duration:.01ms!important;
+    transition-duration:.01ms!important;
+    scroll-behavior:auto!important;
+  }
+}
 </style>
 </head>
+
 <body>
-<div class="wrap">
-  <header class="topbar">
-    <div class="brand">
-      <div class="brandMark">♟</div>
-      <div>
-        <div class="brandName">LUDOVERSE</div>
-        <div class="brandSub">THE BOARD GAME CLUB</div>
-      </div>
-    </div>
-    <div class="topTag">✦ EST. FOR FUN</div>
-  </header>
+<div id="background"></div>
+<canvas id="particles"></canvas>
 
-  <section id="lobby">
-    <div class="hero">
-      <div class="eyebrow">ROLL THE DICE · MAKE MEMORIES</div>
-      <h1>Every turn tells<br> a little story.</h1>
-      <p>Permainan klasik dengan sentuhan vintage. Ajak teman, pilih karakter favorit, dan mulai petualangan di atas papan.</p>
-    </div>
-
-    <section class="panel">
-      <div class="sectionHead">
-        <h2>Pilih dunia permainan</h2>
-        <span class="smallLabel">01 / WORLD</span>
-      </div>
-      <div class="worldGrid" id="worldGrid">
-        <button class="world active" data-world="garden"><span class="worldIcon">🌿</span><span class="worldName">Secret Garden</span><div class="worldDesc">Botanical vintage</div></button>
-        <button class="world" data-world="coast"><span class="worldIcon">🌊</span><span class="worldName">Golden Coast</span><div class="worldDesc">Coastal escape</div></button>
-        <button class="world" data-world="forest"><span class="worldIcon">🍄</span><span class="worldName">Mushroom Woods</span><div class="worldDesc">Whimsical forest</div></button>
-        <button class="world" data-world="desert"><span class="worldIcon">☀️</span><span class="worldName">Sunlit Desert</span><div class="worldDesc">Warm sands</div></button>
-        <button class="world" data-world="royal"><span class="worldIcon">👑</span><span class="worldName">Royal Library</span><div class="worldDesc">Classic elegance</div></button>
-        <button class="world" data-world="carnival"><span class="worldIcon">🎪</span><span class="worldName">Little Carnival</span><div class="worldDesc">Playful colors</div></button>
-      </div>
-    </section>
-
-    <div class="setupGrid">
-      <section class="panel">
-        <div class="sectionHead"><h2>Atur permainan</h2><span class="smallLabel">02 / GAME</span></div>
-        <div class="stack">
-          <div>
-            <label class="fieldLabel">MODE PERMAINAN</label>
-            <div class="modeChoices">
-              <button class="modeChoice active" data-mode="snakes"><b>🐍 Ular Tangga</b><span>Naik tangga, hindari ular.</span></button>
-              <button class="modeChoice" data-mode="ludo"><b>🎲 Ludo</b><span>Bawa semua bidak ke rumah.</span></button>
-            </div>
-          </div>
-          <div>
-            <label class="fieldLabel" for="playerName">NAMA KAMU</label>
-            <input class="field" id="playerName" maxlength="16" value="Player 1" placeholder="Masukkan nama">
-          </div>
-          <div>
-            <label class="fieldLabel" for="playerCount">JUMLAH PEMAIN LOKAL</label>
-            <select class="field" id="playerCount">
-              <option value="2">2 pemain</option><option value="3">3 pemain</option><option value="4" selected>4 pemain</option>
-            </select>
-          </div>
-          <div>
-            <label class="fieldLabel">PILIH KARAKTER</label>
-            <div class="characterGrid" id="characterGrid">
-              <button class="character active" data-character="🦊"><span class="avatar">🦊</span><small>Foxy</small></button>
-              <button class="character" data-character="🐼"><span class="avatar">🐼</span><small>Panda</small></button>
-              <button class="character" data-character="🐸"><span class="avatar">🐸</span><small>Froggy</small></button>
-              <button class="character" data-character="🐱"><span class="avatar">🐱</span><small>Mochi</small></button>
-              <button class="character" data-character="🐻"><span class="avatar">🐻</span><small>Bear</small></button>
-              <button class="character" data-character="🐰"><span class="avatar">🐰</span><small>Bunny</small></button>
-            </div>
-          </div>
-          <button class="btn red full" id="startLocal">MULAI PERMAINAN →</button>
+<div id="app">
+  <section id="menu" class="screen">
+    <div class="menuCard">
+      <div class="brand">
+        <div class="brandSmall">ONLINE BOARD GAME · ADVENTURE · PARTY</div>
+        <div class="logo">LUDOVERSE</div>
+        <div class="description">
+          Satu papan, banyak dunia, satu petualangan bersama.
+          Buat room atau masukkan kode teman untuk bermain online hingga empat pemain.
         </div>
-      </section>
+      </div>
 
-      <section class="panel">
-        <div class="sectionHead"><h2>Main bersama</h2><span class="smallLabel">03 / ONLINE</span></div>
-        <div class="stack">
+      <div class="sectionTitle">PILIH DUNIA</div>
+      <div class="worlds">
+        <div class="world active" data-world="neon"><div class="worldIcon">🌃</div><div class="worldName">Neon City</div><div class="worldDesc">Cyberpunk metropolis</div></div>
+        <div class="world" data-world="forest"><div class="worldIcon">🌲</div><div class="worldName">Mystic Forest</div><div class="worldDesc">Ancient magical woods</div></div>
+        <div class="world" data-world="desert"><div class="worldIcon">🏜️</div><div class="worldName">Lost Empire</div><div class="worldDesc">Desert ruins</div></div>
+        <div class="world" data-world="ocean"><div class="worldIcon">🌊</div><div class="worldName">Abyss</div><div class="worldDesc">Deep ocean kingdom</div></div>
+        <div class="world" data-world="inferno"><div class="worldIcon">🌋</div><div class="worldName">Inferno</div><div class="worldDesc">Volcanic battlefield</div></div>
+        <div class="world" data-world="frost"><div class="worldIcon">❄️</div><div class="worldName">Frost Kingdom</div><div class="worldDesc">Frozen royal realm</div></div>
+      </div>
+
+      <div class="onlineBox">
+        <div class="sectionTitle" style="margin-top:0">MULTIPLAYER ONLINE</div>
+        <div class="onlineGrid" style="margin-top:14px">
           <div>
-            <label class="fieldLabel">ROOM MULTIPLAYER · MAKSIMAL 4 PEMAIN</label>
-            <div class="row">
-              <button class="btn gold" id="createRoom">＋ Buat Room</button>
-              <button class="btn secondary" id="leaveRoom" disabled>Keluar</button>
-            </div>
+            <label for="playerName">NAMA PEMAIN</label>
+            <input class="field" id="playerName" maxlength="16" placeholder="Nama kamu" value="Pemain">
           </div>
           <div>
-            <label class="fieldLabel" for="roomInput">KODE ROOM</label>
-            <div class="row">
-              <input class="field" id="roomInput" maxlength="6" placeholder="Contoh: ABC123" style="text-transform:uppercase">
-              <button class="btn" id="joinRoom">Gabung</button>
-            </div>
+            <label for="roomInput">KODE ROOM TEMAN</label>
+            <input class="field" id="roomInput" maxlength="8" placeholder="Contoh: AB12CD" autocomplete="off">
           </div>
-          <div class="statusPill"><span class="statusDot" id="statusDot"></span><span id="onlineStatus">Belum terhubung</span></div>
-          <div class="notice" id="roomInfo">Buat room untuk menjadi host atau masukkan kode room teman. Semua pemain perlu membuka halaman ini.</div>
-          <div class="divider"></div>
-          <div class="sectionHead"><h2>Di dalam room</h2><span class="smallLabel" id="roomCodeLabel">—</span></div>
-          <div class="playersList" id="lobbyPlayers"></div>
-          <button class="btn red full" id="startOnline" disabled>MULAI GAME ONLINE</button>
-          <div class="notice">Multiplayer memakai koneksi PeerJS Cloud dan WebRTC peer-to-peer. Ketersediaan koneksi bergantung pada jaringan serta layanan signaling.</div>
         </div>
-      </section>
+        <div class="actions">
+          <button class="btn btnPrimary" id="createRoom">BUAT ROOM</button>
+          <button class="btn" id="joinRoom">GABUNG ROOM</button>
+          <button class="btn" id="copyRoom" disabled>SALIN KODE</button>
+        </div>
+        <div id="roomDisplay">
+          <div style="font-size:10px;color:var(--muted);letter-spacing:2px">KODE ROOM</div>
+          <div class="roomCode" id="roomCode">------</div>
+        </div>
+        <div id="lobbyPlayers"></div>
+        <div id="connectionStatus" role="status">Siap membuat atau bergabung ke room.</div>
+        <button class="btn btnGold btnWide" id="startGame" disabled>MULAI PERMAINAN</button>
+      </div>
     </div>
   </section>
 
-  <section id="game" class="hidden">
-    <div class="gameTop">
-      <div>
-        <div class="smallLabel" id="gameWorldLabel">SECRET GARDEN</div>
-        <div class="gameTitle" id="gameHeading">Ular Tangga</div>
-        <div class="gameSub" id="gameSub">Bergiliran, lempar dadu, dan capai garis akhir.</div>
+  <section id="gameScreen" class="screen hidden">
+    <div id="topbar">
+      <div class="glass">
+        <div class="modeName" id="modeName">Neon City</div>
+        <div class="turnText" id="turnText">MENUNGGU PEMAIN</div>
       </div>
-      <button class="btn secondary" id="backLobby">← LOBBY</button>
+      <div class="glass">
+        <div class="modeName">LUDOVERSE</div>
+        <div class="turnText" id="gameRoomLabel">ROOM —</div>
+      </div>
     </div>
-    <div class="gameLayout">
-      <section class="boardPanel">
-        <div class="boardFrame"><svg id="boardSvg" viewBox="0 0 600 600" role="img" aria-label="Papan permainan"></svg></div>
-      </section>
-      <aside class="sideStack">
-        <section class="turnPanel">
-          <div class="smallLabel">GILIRAN SEKARANG</div>
-          <div class="turnName" id="turnName">Player 1</div>
-          <div class="turnHint" id="turnHint">Tekan tombol lempar dadu untuk memulai giliranmu.</div>
-          <div class="diceRow">
-            <button class="dice" id="diceButton" aria-label="Lempar dadu"><span class="diceDots" id="diceDots"></span></button>
-            <div class="diceInfo"><b id="diceResult">Siap bermain</b><br><span>Klik dadu untuk melempar</span></div>
-          </div>
-          <div style="margin-top:16px"><button class="btn red full" id="rollButton">LEMPAR DADU 🎲</button></div>
-        </section>
-        <section class="panel">
-          <div class="sectionHead"><h2>Pemain</h2><span class="smallLabel" id="playerCounter">0 PLAYERS</span></div>
-          <div class="playersList" id="gamePlayers"></div>
-        </section>
-        <section class="panel">
-          <div class="sectionHead"><h2>Catatan permainan</h2></div>
-          <div class="log" id="gameLog">Permainan akan dimulai sebentar lagi.</div>
-          <div class="divider"></div>
-          <div class="gameActions">
-            <button class="btn secondary" id="newGame">Ulangi</button>
-            <button class="btn secondary" id="quitGame">Keluar</button>
-          </div>
-        </section>
-      </aside>
+    <div id="boardWrap">
+      <div id="board"></div>
+      <div id="decor"></div>
+      <div id="pieces"></div>
     </div>
+    <div id="players"></div>
+    <div id="toast"></div>
+    <div id="diceArea">
+      <div id="dice">🎲</div>
+      <button class="btn btnPrimary" id="roll" disabled>LEMPAR DADU</button>
+    </div>
+    <div id="networkBadge">Menghubungkan…</div>
   </section>
 
-  <footer class="footer">LUDOVERSE · A LITTLE CLASSIC, A LOT OF FUN</footer>
-</div>
-
-<div id="toast"></div>
-<div id="winOverlay" class="hidden">
-  <div class="winCard">
-    <div class="winEmoji" id="winEmoji">🏆</div>
-    <h2 id="winTitle">Well played!</h2>
-    <p id="winText">Kemenangan yang pantas dirayakan.</p>
-    <button class="btn red full" id="winAgain">MAIN LAGI</button>
-    <button class="btn secondary full" id="winLobby" style="margin-top:9px">KEMBALI KE LOBBY</button>
+  <div id="win" class="hidden">
+    <div class="winCard">
+      <div class="winTitle">VICTORY</div>
+      <div class="winText" id="winText">Pemain mencapai kotak terakhir.</div>
+      <button class="btn btnPrimary btnWide" id="backMenu">KEMBALI KE LOBBY</button>
+    </div>
   </div>
 </div>
 
 <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
 <script>
+```javascript
 "use strict";
 
-/* =========================================================
-   LUDOVERSE — Single-file board game
-   Local Snakes & Ladders + local Ludo + PeerJS room lobby
-========================================================= */
+/* ==========================================
+   LUDOVERSE — MULTIPLAYER ENGINE
+   Host-authoritative state synchronization
+   Maximum 4 players per room
+========================================== */
+
 const $ = id => document.getElementById(id);
-const COLORS = ["#b64d40","#3e7894","#598052","#c5963e"];
-const WORLD_NAMES = {
-  garden:"Secret Garden",coast:"Golden Coast",forest:"Mushroom Woods",
-  desert:"Sunlit Desert",royal:"Royal Library",carnival:"Little Carnival"
-};
-const THEMES = {
-  garden:{paper:"#f4ead6",board:"#f1e4c8",a:"#a64f43",b:"#54765b"},
-  coast:{paper:"#e9e5d5",board:"#e3e9df",a:"#54758b",b:"#c49a56"},
-  forest:{paper:"#e9e4cf",board:"#e1e6cd",a:"#6e7c4b",b:"#a65d42"},
-  desert:{paper:"#f4e3c7",board:"#eed7ad",a:"#b56e3c",b:"#d0a44d"},
-  royal:{paper:"#eee3d3",board:"#e6d8c0",a:"#77566d",b:"#b08a4e"},
-  carnival:{paper:"#f5e4d9",board:"#f1d7c9",a:"#bd5a55",b:"#588b87"}
-};
-const CHARACTERS = ["🦊","🐼","🐸","🐱","🐻","🐰","🦁","🐧"];
-const PLAYER_COLORS = ["#b64d40","#3e7894","#598052","#c5963e"];
-let selectedWorld="garden", selectedMode="snakes", selectedCharacter="🦊";
-let game=null, online=false, isHost=false, roomCode="", peer=null;
-let myPeerId="", myIndex=0, hostConn=null;
-const connections = new Map();
-let busy=false, logLines=[], lastSnapshotSignature="";
-let toastTimer;
 
-/* ---------- small helpers ---------- */
-function toast(message){
-  $("toast").textContent=message;
-  $("toast").classList.add("show");
-  clearTimeout(toastTimer);
-  toastTimer=setTimeout(()=>$("toast").classList.remove("show"),2600);
-}
-function wait(ms){return new Promise(r=>setTimeout(r,ms))}
-function cleanName(v){return String(v||"Player").replace(/[<>]/g,"").trim().slice(0,16)||"Player"}
-function randomCode(){
-  const chars="ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
-  return Array.from({length:6},()=>chars[Math.floor(Math.random()*chars.length)]).join("");
-}
-function setStatus(text,ok=false){
-  $("onlineStatus").textContent=text;
-  $("statusDot").style.background=ok?"#598052":"#a64f43";
-}
-function addLog(text){
-  logLines.unshift(text);
-  logLines=logLines.slice(0,12);
-  $("gameLog").innerHTML=logLines.map(x=>`<div>• ${escapeHTML(x)}</div>`).join("");
-}
-function escapeHTML(s){
-  return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
-}
-function applyTheme(){
-  const t=THEMES[selectedWorld]||THEMES.garden;
-  document.documentElement.style.setProperty("--paper",t.paper);
-  document.documentElement.style.setProperty("--red",t.a);
-  document.documentElement.style.setProperty("--green",t.b);
-}
-function currentPlayer(){return game?.players?.[game.turn]||null}
-function isMyTurn(){return !online || game?.players?.[game.turn]?.peerId===myPeerId}
-function setRollEnabled(){
-  const can=!!game&&!busy&&!game.over&&isMyTurn();
-  $("rollButton").disabled=!can;
-  $("diceButton").disabled=!can;
-  $("turnHint").textContent=game?.over?"Permainan telah selesai.":can?"Giliranmu — lempar dadu untuk melanjutkan.":online?"Menunggu giliran pemain lain.":"Lempar dadu untuk bergerak.";
+const worlds = {
+  neon: {
+    name: "Neon City",
+    bg1: "#080b19", bg2: "#171126",
+    glow: "rgba(0,245,255,.15)",
+    accent: "#00f5ff", accent2: "#ff2bd6",
+    snake: "🐍", ladder: "⚡"
+  },
+  forest: {
+    name: "Mystic Forest",
+    bg1: "#03120c", bg2: "#081e18",
+    glow: "rgba(80,255,150,.16)",
+    accent: "#55ff9a", accent2: "#b8ff52",
+    snake: "🐉", ladder: "🌿"
+  },
+  desert: {
+    name: "Lost Empire",
+    bg1: "#1b0c04", bg2: "#38200a",
+    glow: "rgba(255,178,70,.18)",
+    accent: "#ffb347", accent2: "#ffe27a",
+    snake: "🐍", ladder: "🏺"
+  },
+  ocean: {
+    name: "Abyss",
+    bg1: "#021019", bg2: "#032d40",
+    glow: "rgba(0,210,255,.2)",
+    accent: "#00d9ff", accent2: "#65fff0",
+    snake: "🐙", ladder: "🪸"
+  },
+  inferno: {
+    name: "Inferno",
+    bg1: "#160303", bg2: "#3b0805",
+    glow: "rgba(255,65,20,.22)",
+    accent: "#ff4b21", accent2: "#ffce3a",
+    snake: "🐍", ladder: "🔥"
+  },
+  frost: {
+    name: "Frost Kingdom",
+    bg1: "#030b17", bg2: "#0a1d36",
+    glow: "rgba(100,210,255,.2)",
+    accent: "#70dfff", accent2: "#d8ffff",
+    snake: "🐲", ladder: "❄️"
+  }
+};
+
+const maps = {
+  neon: {
+    ladders: {3:22,14:36,29:57,48:79,65:90},
+    snakes: {27:9,44:18,53:31,76:46,97:72}
+  },
+  forest: {
+    ladders: {5:25,18:39,33:58,47:74,61:88},
+    snakes: {30:12,42:20,55:37,83:51,95:68}
+  },
+  desert: {
+    ladders: {7:28,21:43,35:62,50:76,69:92},
+    snakes: {32:11,46:24,59:34,81:54,99:70}
+  },
+  ocean: {
+    ladders: {4:19,17:41,31:55,49:72,64:87},
+    snakes: {26:8,45:23,58:40,78:52,96:71}
+  },
+  inferno: {
+    ladders: {2:21,16:38,28:52,43:70,60:84},
+    snakes: {25:7,41:15,57:35,74:49,98:63}
+  },
+  frost: {
+    ladders: {6:26,19:44,34:59,52:78,67:91},
+    snakes: {24:10,39:21,56:32,80:48,94:69}
+  }
+};
+
+const colors = ["#00d9ff", "#ff4bd8", "#8dff68", "#ffc36b"];
+
+let selectedWorld = "neon";
+let peer = null;
+let hostPeerId = null;
+let myPeerId = null;
+let roomCode = "";
+let isHost = false;
+let online = false;
+let gameStarted = false;
+let hostBusy = false;
+let state = null;
+let connections = new Map();
+let reconnecting = false;
+let toastTimer = null;
+
+const diceFaces = ["", "⚀", "⚁", "⚂", "⚃", "⚄", "⚅"];
+
+/* ==========================================
+   WORLD SELECTION
+========================================== */
+
+document.querySelectorAll(".world").forEach(card => {
+  card.addEventListener("click", () => {
+    document.querySelectorAll(".world").forEach(el => {
+      el.classList.remove("active");
+    });
+
+    card.classList.add("active");
+    selectedWorld = card.dataset.world;
+    applyWorld();
+  });
+});
+
+function applyWorld() {
+  const w = worlds[selectedWorld];
+  const root = document.documentElement;
+
+  root.style.setProperty("--bg1", w.bg1);
+  root.style.setProperty("--bg2", w.bg2);
+  root.style.setProperty("--glow", w.glow);
+  root.style.setProperty("--accent", w.accent);
+  root.style.setProperty("--accent2", w.accent2);
+
+  $("background").style.background =
+    `radial-gradient(ellipse at 50% 15%,${w.glow},transparent 55%),linear-gradient(135deg,${w.bg1},${w.bg2})`;
 }
 
-/* ---------- lobby setup ---------- */
-document.querySelectorAll(".world").forEach(btn=>{
-  btn.addEventListener("click",()=>{
-    document.querySelectorAll(".world").forEach(x=>x.classList.remove("active"));
-    btn.classList.add("active");
-    selectedWorld=btn.dataset.world;
-    applyTheme();
-  });
-});
-document.querySelectorAll(".modeChoice").forEach(btn=>{
-  btn.addEventListener("click",()=>{
-    document.querySelectorAll(".modeChoice").forEach(x=>x.classList.remove("active"));
-    btn.classList.add("active");
-    selectedMode=btn.dataset.mode;
-  });
-});
-document.querySelectorAll(".character").forEach(btn=>{
-  btn.addEventListener("click",()=>{
-    document.querySelectorAll(".character").forEach(x=>x.classList.remove("active"));
-    btn.classList.add("active");
-    selectedCharacter=btn.dataset.character;
-  });
-});
-function renderLobbyPlayers(players=[]){
-  const box=$("lobbyPlayers");box.innerHTML="";
-  players.forEach(p=>{
-    const row=document.createElement("div");row.className="playerLine";
-    row.innerHTML=`<span class="playerAvatar">${escapeHTML(p.character||"🎲")}</span><span class="playerInfo"><b>${escapeHTML(p.name)}</b><small>${p.host?"HOST":"PLAYER"}</small></span>`;
-    box.appendChild(row);
-  });
-  if(!players.length)box.innerHTML='<div class="notice">Belum ada pemain di room.</div>';
-  $("startOnline").disabled=!(online&&isHost&&players.length>=2);
-  $("roomCodeLabel").textContent=roomCode||"—";
+function setStatus(message) {
+  $("connectionStatus").textContent = message;
 }
-function lobbyPlayers(){
-  if(!online)return [];
-  if(isHost){
-    return [{name:cleanName($("playerName").value),character:selectedCharacter,host:true,peerId:myPeerId},
-      ...Array.from(connections.values()).filter(c=>c.open).map(c=>c.__player||{name:"Menghubungkan…",character:"🎲",peerId:c.peer})];
+
+function setNetwork(message) {
+  $("networkBadge").textContent = message;
+}
+
+function normalizeCode(value) {
+  return value.toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 6);
+}
+
+function makeRoomCode() {
+  const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+  let code = "";
+
+  for (let i = 0; i < 6; i++) {
+    code += chars[Math.floor(Math.random() * chars.length)];
   }
-  return [{name:cleanName($("playerName").value),character:selectedCharacter,peerId:myPeerId}];
+
+  return code;
 }
-function renderLobby(){renderLobbyPlayers(lobbyPlayers())}
-function setupPeer(){
-  return new Promise((resolve,reject)=>{
-    if(!window.Peer){reject(new Error("Library PeerJS gagal dimuat. Periksa koneksi internet."));return}
-    peer=new Peer(undefined,{debug:1});
-    peer.on("open",id=>{myPeerId=id;resolve(id)});
-    peer.on("error",err=>reject(err));
-  });
+
+function cleanName() {
+  const name = $("playerName").value.trim().slice(0, 16);
+  return name || "Pemain";
 }
-async function createOnlineRoom(){
-  if(online)return;
-  $("createRoom").disabled=true;
-  try{
-    await setupPeer();
-    isHost=true;online=true;roomCode=randomCode();
-    $("roomInput").value=roomCode;
-    $("leaveRoom").disabled=false;
-    setStatus("Room dibuat · menunggu pemain",true);
-    $("roomInfo").textContent="Bagikan kode room kepada teman. Maksimal 4 pemain termasuk host.";
-    peer.on("connection",conn=>{
-      if(connections.size>=3){conn.on("open",()=>conn.send({type:"error",message:"Room penuh."}));setTimeout(()=>conn.close(),800);return}
-      connections.set(conn.peer,conn);
-      conn.__player={name:"Menghubungkan…",character:"🎲",peerId:conn.peer};
-      conn.on("data",msg=>handleHostMessage(conn,msg));
-      conn.on("open",()=>{
-        safeSend(conn,{type:"welcome",roomCode,hostId:myPeerId,players:lobbyPlayers()});
-        renderLobby();
-      });
-      conn.on("close",()=>{connections.delete(conn.peer);renderLobby();broadcastLobby()});
-      conn.on("error",()=>{connections.delete(conn.peer);renderLobby()});
-    });
-    renderLobby();
-  }catch(err){
-    toast("Gagal membuat room: "+(err.message||"koneksi gagal"));
-    setStatus("Tidak terhubung");
-    if(peer){peer.destroy();peer=null}
-    online=false;isHost=false;
-  }finally{$("createRoom").disabled=false}
-}
-async function joinOnlineRoom(){
-  if(online)return;
-  const code=$("roomInput").value.trim().toUpperCase();
-  if(!/^[A-Z0-9]{6}$/.test(code)){toast("Masukkan kode room 6 karakter.");return}
-  $("joinRoom").disabled=true;
-  try{
-    await setupPeer();
-    roomCode=code;online=true;isHost=false;
-    hostConn=peer.connect("ludoverse-"+code,{reliable:true,serialization:"json"});
-    const timeout=setTimeout(()=>{if(!hostConn.open){toast("Room tidak ditemukan atau koneksi timeout.");leaveOnline()}},12000);
-    hostConn.on("open",()=>{
-      clearTimeout(timeout);
-      hostConn.send({type:"join",name:cleanName($("playerName").value),character:selectedCharacter,peerId:myPeerId});
-      $("leaveRoom").disabled=false;setStatus("Terhubung · menunggu host",true);
-      $("roomInfo").textContent="Terhubung ke host. Host akan memulai permainan.";
-    });
-    hostConn.on("data",msg=>handleGuestMessage(msg));
-    hostConn.on("close",()=>{setStatus("Koneksi terputus");toast("Koneksi dengan host terputus.");leaveOnline()});
-    hostConn.on("error",err=>toast("Koneksi gagal: "+err.type));
-  }catch(err){toast("Tidak bisa bergabung: "+(err.message||"koneksi gagal"));leaveOnline()}
-  finally{$("joinRoom").disabled=false}
-}
-function safeSend(conn,msg){try{if(conn&&conn.open)conn.send(msg)}catch(e){console.warn(e)}}
-function broadcast(msg){for(const c of connections.values())safeSend(c,msg)}
-function broadcastLobby(){broadcast({type:"lobby",roomCode,players:lobbyPlayers()})}
-function handleHostMessage(conn,msg){
-  if(!msg||typeof msg!=="object")return;
-  if(msg.type==="join"){
-    if(connections.size>3){safeSend(conn,{type:"error",message:"Room penuh"});return}
-    conn.__player={name:cleanName(msg.name),character:CHARACTERS.includes(msg.character)?msg.character:"🎲",peerId:conn.peer,host:false};
-    renderLobby();broadcastLobby();safeSend(conn,{type:"welcome",roomCode,players:lobbyPlayers()});
-  }else if(msg.type==="action"&&game){
-    const idx=game.players.findIndex(p=>p.peerId===conn.peer);
-    if(idx<0||idx!==game.turn||game.over||busy)return;
-    if(msg.action==="roll")rollTurn(idx,true);
-    else if(msg.action==="token"&&selectedMode==="ludo")moveLudoToken(idx,Number(msg.token),true);
+
+function resetNetwork() {
+  if (peer) {
+    try { peer.destroy(); } catch (_) {}
   }
-}
-function handleGuestMessage(msg){
-  if(!msg||typeof msg!=="object")return;
-  if(msg.type==="error"){toast(msg.message||"Room error");return}
-  if(msg.type==="welcome"||msg.type==="lobby"){
-    roomCode=msg.roomCode||roomCode;
-    renderLobbyPlayers(msg.players||[]);
-    setStatus("Terhubung ke room "+roomCode,true);
-    $("roomCodeLabel").textContent=roomCode;
-  }
-  if(msg.type==="start"){
-    game=msg.game;selectedMode=game.mode;selectedWorld=game.world;
-    myIndex=game.players.findIndex(p=>p.peerId===myPeerId);
-    applyTheme();showGame();renderGame();
-  }
-  if(msg.type==="state"){
-    game=msg.game;
-    applyTheme();renderGame();
-  }
-}
-function leaveOnline(){
-  try{if(hostConn)hostConn.close()}catch(e){}
-  for(const c of connections.values())try{c.close()}catch(e){}
+
+  peer = null;
+  hostPeerId = null;
+  myPeerId = null;
+  roomCode = "";
+  isHost = false;
+  online = false;
+  gameStarted = false;
+  hostBusy = false;
+  state = null;
   connections.clear();
-  if(peer){try{peer.destroy()}catch(e){}}
-  peer=null;hostConn=null;online=false;isHost=false;roomCode="";myPeerId="";myIndex=0;
-  $("leaveRoom").disabled=true;$("startOnline").disabled=true;
-  $("roomCodeLabel").textContent="—";setStatus("Belum terhubung");
-  $("roomInfo").textContent="Buat room untuk menjadi host atau masukkan kode room teman.";
-  renderLobbyPlayers([]);
-}
-$("createRoom").addEventListener("click",createOnlineRoom);
-$("joinRoom").addEventListener("click",joinOnlineRoom);
-$("leaveRoom").addEventListener("click",()=>{leaveOnline();toast("Keluar dari room.")});
-$("roomInput").addEventListener("input",e=>e.target.value=e.target.value.toUpperCase().replace(/[^A-Z0-9]/g,"").slice(0,6));
+  reconnecting = false;
 
-/* ---------- game setup ---------- */
-function makePlayers(count,onlinePlayersList=null){
-  const names=["Player 1","Player 2","Player 3","Player 4"];
-  const chars=[selectedCharacter,"🐼","🐸","🐱"];
-  if(onlinePlayersList){
-    return onlinePlayersList.slice(0,4).map((p,i)=>({
-      id:i,name:cleanName(p.name),character:p.character||chars[i],
-      color:PLAYER_COLORS[i],peerId:p.peerId,pos:0,tokens:[-1,-1,-1,-1],finished:0,host:!!p.host
-    }));
-  }
-  const first=cleanName($("playerName").value);
-  return Array.from({length:count},(_,i)=>({
-    id:i,name:i===0?first:names[i],character:chars[i]||"🦊",
-    color:PLAYER_COLORS[i],peerId:null,pos:0,tokens:[-1,-1,-1,-1],finished:0
-  }));
-}
-function newGame(mode,players,world){
-  return {mode,world,players,turn:0,over:false,winner:null,lastRoll:0,started:Date.now()};
-}
-$("startLocal").addEventListener("click",()=>{
-  leaveOnline();
-  const count=Number($("playerCount").value);
-  game=newGame(selectedMode,makePlayers(count),selectedWorld);
-  online=false;isHost=false;busy=false;logLines=[];
-  addLog("Permainan dimulai di "+WORLD_NAMES[selectedWorld]+".");
-  showGame();renderGame();
-});
-$("startOnline").addEventListener("click",()=>{
-  if(!online||!isHost)return;
-  const list=lobbyPlayers().slice(0,4);
-  if(list.length<2){toast("Butuh minimal dua pemain.");return}
-  game=newGame(selectedMode,makePlayers(list.length,list),selectedWorld);
-  myIndex=0;busy=false;logLines=[];
-  addLog("Room "+roomCode+" dimulai.");
-  broadcast({type:"start",game});
-  showGame();renderGame();broadcastState();
-});
-function showGame(){
-  $("lobby").classList.add("hidden");$("game").classList.remove("hidden");
-  $("gameWorldLabel").textContent=WORLD_NAMES[selectedWorld].toUpperCase();
-  $("gameHeading").textContent=selectedMode==="snakes"?"Ular Tangga":"Ludo";
-  $("gameSub").textContent=selectedMode==="snakes"?"Capai kotak 100 dan hindari ular.":"Keluarkan bidak dengan angka enam, lalu capai rumah.";
-  $("winOverlay").classList.add("hidden");
-}
-function showLobby(){
-  $("game").classList.add("hidden");$("lobby").classList.remove("hidden");
-  $("winOverlay").classList.add("hidden");
-}
-$("backLobby").addEventListener("click",showLobby);
-$("quitGame").addEventListener("click",showLobby);
-$("newGame").addEventListener("click",()=>{
-  if(online&&!isHost){toast("Minta host memulai ulang permainan.");return}
-  if(online&&isHost){
-    game=newGame(selectedMode,game.players.map(p=>({...p,pos:0,tokens:[-1,-1,-1,-1],finished:0})),selectedWorld);
-    busy=false;logLines=[];addLog("Permainan dimulai ulang.");renderGame();broadcastState();return;
-  }
-  game=newGame(selectedMode,makePlayers(Number($("playerCount").value)),selectedWorld);
-  busy=false;logLines=[];addLog("Permainan dimulai ulang.");renderGame();
-});
-$("winAgain").addEventListener("click",()=>{$("winOverlay").classList.add("hidden");$("newGame").click()});
-$("winLobby").addEventListener("click",showLobby);
-
-/* ---------- board rendering ---------- */
-function svgEl(name,attrs={},text=""){
-  const el=document.createElementNS("http://www.w3.org/2000/svg",name);
-  Object.entries(attrs).forEach(([k,v])=>el.setAttribute(k,v));
-  if(text)el.textContent=text;
-  return el;
-}
-function clearBoard(){const svg=$("boardSvg");svg.innerHTML="";return svg}
-function cellCenter(n){
-  const rowFromBottom=Math.floor((n-1)/10);
-  const colInRow=(n-1)%10;
-  const col=rowFromBottom%2===0?colInRow:9-colInRow;
-  const row=9-rowFromBottom;
-  return {x:col*60+30,y:row*60+30};
-}
-const snakes={98:28,95:24,92:51,83:19,73:1,64:36,62:18,49:11,46:25,16:6};
-const ladders={2:38,7:14,8:31,15:26,21:42,28:84,36:44,51:67,71:91,78:98,87:94};
-function drawSnakesBoard(){
-  const svg=clearBoard(),t=THEMES[selectedWorld];
-  svg.appendChild(svgEl("rect",{x:0,y:0,width:600,height:600,fill:t.board}));
-  for(let n=1;n<=100;n++){
-    const c=cellCenter(n),row=Math.floor((n-1)/10),col=Math.floor((n-1)%10);
-    const shade=(row+col)%2===0?"#fff7e7":"#e7d4af";
-    svg.appendChild(svgEl("rect",{x:c.x-29,y:c.y-29,width:58,height:58,fill:shade,stroke:"#bda982","stroke-width":".8"}));
-    svg.appendChild(svgEl("text",{x:c.x-22,y:c.y-15,fill:"#77684f","font-size":10,"font-family":"Georgia","font-weight":"bold"},n));
-  }
-  Object.entries(ladders).forEach(([a,b],i)=>{
-    const p=cellCenter(+a),q=cellCenter(+b);
-    const dx=q.x-p.x,dy=q.y-p.y,len=Math.hypot(dx,dy)||1,ox=-dy/len*7,oy=dx/len*7;
-    const g=svgEl("g",{stroke:"#987344","stroke-linecap":"round","fill":"none"});
-    g.appendChild(svgEl("line",{x1:p.x+ox,y1:p.y+oy,x2:q.x+ox,y2:q.y+oy,"stroke-width":4}));
-    g.appendChild(svgEl("line",{x1:p.x-ox,y1:p.y-oy,x2:q.x-ox,y2:q.y-oy,"stroke-width":4}));
-    for(let s=1;s<7;s++){
-      const f=s/7;
-      g.appendChild(svgEl("line",{x1:p.x+ox+(q.x-p.x)*f,y1:p.y+oy+(q.y-p.y)*f,x2:p.x-ox+(q.x-p.x)*f,y2:p.y-oy+(q.y-p.y)*f,"stroke-width":3}));
-    }
-    svg.appendChild(g);
-  });
-  Object.entries(snakes).forEach(([a,b],i)=>{
-    const p=cellCenter(+a),q=cellCenter(+b);
-    const mx=(p.x+q.x)/2+(i%2?25:-25),my=(p.y+q.y)/2;
-    const color=["#a64f43","#5b7e55","#54758b","#bd9146"][i%4];
-    const path=svgEl("path",{d:`M ${p.x} ${p.y} Q ${mx+35} ${my-35} ${mx} ${my} T ${q.x} ${q.y}`,fill:"none",stroke:color,"stroke-width":13,"stroke-linecap":"round"});
-    svg.appendChild(path);
-    svg.appendChild(svgEl("path",{d:`M ${p.x} ${p.y} Q ${mx+35} ${my-35} ${mx} ${my} T ${q.x} ${q.y}`,fill:"none",stroke:"#ffffff40","stroke-width":3,"stroke-linecap":"round"}));
-    svg.appendChild(svgEl("circle",{cx:p.x,cy:p.y,r:9,fill:color,stroke:"#f8e9c8","stroke-width":2}));
-    svg.appendChild(svgEl("circle",{cx:p.x-3,cy:p.y-2,r:1.5,fill:"#fff"}));
-  });
-  const start=cellCenter(1),finish=cellCenter(100);
-  svg.appendChild(svgEl("circle",{cx:start.x,cy:start.y,r:18,fill:"#5b7e55","fill-opacity":".25",stroke:"#5b7e55","stroke-width":2}));
-  svg.appendChild(svgEl("circle",{cx:finish.x,cy:finish.y,r:18,fill:"#bc9149","fill-opacity":".35",stroke:"#bc9149","stroke-width":2}));
-  drawPiecesSnakes(svg);
-}
-function drawPiecesSnakes(svg){
-  game.players.forEach((p,i)=>{
-    if(p.pos<=0)return;
-    const c=cellCenter(p.pos),offsets=[[0,0],[-10,-7],[10,-7],[-10,9],[10,9]];
-    const o=offsets[i%offsets.length];
-    svg.appendChild(svgEl("circle",{cx:c.x+o[0],cy:c.y+o[1],r:13,fill:p.color,stroke:"#fff8e8","stroke-width":2}));
-    svg.appendChild(svgEl("text",{x:c.x+o[0],y:c.y+o[1]+5,"text-anchor":"middle","font-size":17},p.character));
-  });
-}
-const LUDO_PATHS=[
-  Array.from({length:52},(_,i)=>{const coords=[];for(let r=6;r>=0;r--)coords.push([6,r]);return coords[i]||[6,0]}),
-];
-function ludoTrack(){
-  const a=[];
-  for(let c=1;c<=6;c++)a.push([c,7]);
-  for(let r=6;r>=0;r--)a.push([7,r]);
-  for(let c=8;c<=14;c++)a.push([c,1]);
-  for(let r=2;r<=6;r++)a.push([13,r]);
-  for(let c=14;c>=8;c--)a.push([c,7]);
-  for(let r=8;r<=14;r++)a.push([7,r]);
-  for(let c=6;c>=0;c--)a.push([c,13]);
-  for(let r=12;r>=8;r--)a.push([1,r]);
-  for(let c=0;c<=5;c++)a.push([c,7]);
-  return a.slice(0,52);
-}
-const TRACK=ludoTrack();
-const STARTS=[0,13,26,39];
-const HOMES=[{x:0,y:0,color:"#b64d40"},{x:9,y:0,color:"#3e7894"},{x:9,y:9,color:"#598052"},{x:0,y:9,color:"#c5963e"}];
-function drawLudoBoard(){
-  const svg=clearBoard(),cell=40,t=THEMES[selectedWorld];
-  svg.appendChild(svgEl("rect",{x:0,y:0,width:600,height:600,fill:"#f4e8cf"}));
-  const colors=["#b64d40","#3e7894","#598052","#c5963e"];
-  const homes=[{x:0,y:0},{x:9,y:0},{x:9,y:9},{x:0,y:9}];
-  homes.forEach((h,i)=>{
-    svg.appendChild(svgEl("rect",{x:h.x*40+5,y:h.y*40+5,width:220,height:220,rx:8,fill:colors[i],"fill-opacity":".20",stroke:colors[i],"stroke-width":3}));
-    svg.appendChild(svgEl("rect",{x:h.x*40+35,y:h.y*40+35,width:160,height:160,rx:10,fill:"#fff8e9",stroke:colors[i],"stroke-width":2}));
-    for(let k=0;k<4;k++){
-      const px=h.x*40+72+(k%2)*74,py=h.y*40+72+Math.floor(k/2)*74;
-      svg.appendChild(svgEl("circle",{cx:px,cy:py,r:21,fill:colors[i],"fill-opacity":".18",stroke:colors[i],"stroke-width":2}));
-      svg.appendChild(svgEl("circle",{cx:px,cy:py,r:13,fill:colors[i],"fill-opacity":".45"}));
-    }
-  });
-  const path=TRACK;
-  path.forEach(([c,r],idx)=>{
-    const color=idx===0?colors[0]:idx===13?colors[1]:idx===26?colors[2]:idx===39?colors[3]:"#fff8e9";
-    svg.appendChild(svgEl("rect",{x:c*40,y:r*40,width:40,height:40,fill:color,stroke:"#bba983","stroke-width":1}));
-    if(idx%13===0)svg.appendChild(svgEl("text",{x:c*40+20,y:r*40+27,"text-anchor":"middle","font-size":21},"★"));
-  });
-  for(let i=0;i<4;i++){
-    const p=path[STARTS[i]];
-    svg.appendChild(svgEl("circle",{cx:p[0]*40+20,cy:p[1]*40+20,r:15,fill:colors[i],stroke:"#fff","stroke-width":3}));
-  }
-  svg.appendChild(svgEl("path",{d:"M 240 240 L 360 240 L 300 300 Z",fill:colors[1],stroke:"#fff8e9","stroke-width":2}));
-  svg.appendChild(svgEl("path",{d:"M 360 240 L 360 360 L 300 300 Z",fill:colors[2],stroke:"#fff8e9","stroke-width":2}));
-  svg.appendChild(svgEl("path",{d:"M 360 360 L 240 360 L 300 300 Z",fill:colors[3],stroke:"#fff8e9","stroke-width":2}));
-  svg.appendChild(svgEl("path",{d:"M 240 360 L 240 240 L 300 300 Z",fill:colors[0],stroke:"#fff8e9","stroke-width":2}));
-  drawPiecesLudo(svg);
-}
-function drawPiecesLudo(svg){
-  const colors=PLAYER_COLORS;
-  game.players.forEach((p,pi)=>{
-    p.tokens.forEach((pos,ti)=>{
-      let x,y;
-      if(pos===-1){
-        const h=HOMES[pi],offsets=[[72,72],[146,72],[72,146],[146,146]];
-        x=h.x*40+offsets[ti][0];y=h.y*40+offsets[ti][1];
-      }else if(pos>=52){
-        const home=[[7,6],[8,7],[7,8],[6,7]];
-        x=home[pi][0]*40+20;y=home[pi][1]*40+20;
-      }else{
-        const index=(STARTS[pi]+pos)%52,[c,r]=TRACK[index];x=c*40+20;y=r*40+20;
-      }
-      const g=svgEl("g",{class:"ludoToken",cursor:"pointer"});
-      g.appendChild(svgEl("circle",{cx:x,cy:y+3,r:15,fill:"#34271d33"}));
-      g.appendChild(svgEl("circle",{cx:x,cy:y,r:14,fill:colors[pi],stroke:"#fff8e9","stroke-width":2}));
-      g.appendChild(svgEl("text",{x,y:y+6,"text-anchor":"middle","font-size":17},p.character));
-      if(pi===game.turn&&!game.over){
-        g.addEventListener("click",()=>requestToken(pi,ti));
-        g.appendChild(svgEl("circle",{cx:x,cy:y,r:18,fill:"none",stroke:"#bd9149","stroke-width":2,"stroke-dasharray":"4 3"}));
-      }
-      svg.appendChild(g);
-    });
-  });
+  $("startGame").disabled = true;
+  $("copyRoom").disabled = true;
+  $("roomDisplay").style.display = "none";
+  $("lobbyPlayers").textContent = "";
 }
 
-/* ---------- game state + turns ---------- */
-function renderDice(value=game?.lastRoll||0){
-  const patterns={0:[],1:[4],2:[0,8],3:[0,4,8],4:[0,2,6,8],5:[0,2,4,6,8],6:[0,2,3,5,6,8]};
-  const dots=$("diceDots");dots.innerHTML="";
-  for(let i=0;i<9;i++){
-    const pip=document.createElement("i");pip.className="pip";
-    if(!(patterns[value]||[]).includes(i))pip.style.visibility="hidden";
-    dots.appendChild(pip);
-  }
-  $("diceResult").textContent=value?`Hasil dadu: ${value}`:"Siap bermain";
-}
-function renderPlayers(){
-  const box=$("gamePlayers");box.innerHTML="";
-  game.players.forEach((p,i)=>{
-    const row=document.createElement("div");row.className="playerLine"+(i===game.turn?" active":"");
-    const position=game.mode==="snakes"?`Kotak ${p.pos}/100`:`${p.finished}/4 bidak selesai`;
-    row.innerHTML=`<span class="playerAvatar">${escapeHTML(p.character)}</span><span class="playerInfo"><b>${escapeHTML(p.name)}</b><small>${position}</small></span><span class="playerPos">${i===game.turn?"TURN":""}</span>`;
-    box.appendChild(row);
-  });
-  $("playerCounter").textContent=`${game.players.length} PLAYERS`;
-  const p=currentPlayer();
-  $("turnName").textContent=p?`${p.character} ${p.name}`:"—";
-  setRollEnabled();
-}
-function renderGame(){
-  if(!game)return;
-  selectedMode=game.mode;selectedWorld=game.world;applyTheme();
-  $("gameWorldLabel").textContent=WORLD_NAMES[selectedWorld].toUpperCase();
-  $("gameHeading").textContent=selectedMode==="snakes"?"Ular Tangga":"Ludo";
-  if(selectedMode==="snakes")drawSnakesBoard();else drawLudoBoard();
-  renderPlayers();renderDice();
-  $("rollButton").textContent=online&&!isMyTurn()?"MENUNGGU GILIRAN":"LEMPAR DADU 🎲";
-  $("rollButton").disabled=busy||game.over||(online&&!isMyTurn());
-}
-function broadcastState(){
-  if(online&&isHost&&game)broadcast({type:"state",game});
-}
-async function rollTurn(index,fromHost=false){
-  if(!game||busy||game.over||index!==game.turn)return;
-  if(online&&!isHost&&!fromHost){hostConn&&safeSend(hostConn,{type:"action",action:"roll"});return}
-  busy=true;setRollEnabled();
-  const result=1+Math.floor(Math.random()*6);
-  $("diceButton").classList.add("rolling");
-  for(let i=0;i<9;i++){renderDice(1+Math.floor(Math.random()*6));await wait(55)}
-  $("diceButton").classList.remove("rolling");
-  game.lastRoll=result;renderDice(result);
-  if(game.mode==="snakes")await moveSnakes(index,result);
-  else await handleLudoRoll(index,result);
-  busy=false;
-  if(!game.over)advanceTurn();
-  renderGame();broadcastState();
-}
-$("rollButton").addEventListener("click",()=>rollTurn(game?.turn));
-$("diceButton").addEventListener("click",()=>rollTurn(game?.turn));
-function advanceTurn(){
-  if(game.over)return;
-  game.turn=(game.turn+1)%game.players.length;
-}
-async function moveSnakes(index,steps){
-  const p=game.players[index],target=p.pos+steps;
-  if(target>100){addLog(`${p.name} perlu angka tepat untuk mencapai 100.`);return}
-  for(let n=p.pos+1;n<=target;n++){
-    p.pos=n;renderGame();await wait(75);
-  }
-  if(snakes[p.pos]){
-    addLog(`${p.name} tergelincir! Ular membawanya ke kotak ${snakes[p.pos]}.`);
-    toast("Oh tidak! Kamu turun melalui ular 🐍");
-    await wait(400);p.pos=snakes[p.pos];
-  }else if(ladders[p.pos]){
-    addLog(`${p.name} menemukan tangga menuju kotak ${ladders[p.pos]}.`);
-    toast("Hebat! Naik tangga 🪜");
-    await wait(350);p.pos=ladders[p.pos];
-  }else addLog(`${p.name} bergerak ke kotak ${p.pos}.`);
-  if(p.pos===100)finishGame(index);
-}
-async function handleLudoRoll(index,roll){
-  const p=game.players[index];
-  const movable=p.tokens.map((pos,i)=>({pos,i})).filter(t=>t.pos<52&&(t.pos>=0||roll===6));
-  if(!movable.length){addLog(`${p.name} belum bisa mengeluarkan bidak. Perlu angka enam.`);return}
-  if(movable.length===1){await moveLudoToken(index,movable[0].i,true,roll);return}
-  const tokenIndex=await chooseToken(movable.map(x=>x.i),p);
-  if(tokenIndex===null){addLog("Giliran dilewati.");return}
-  await moveLudoToken(index,tokenIndex,true,roll);
-}
-function chooseToken(indices,p){
-  return new Promise(resolve=>{
-    toast(`${p.name}: pilih salah satu bidak yang berkedip di papan.`);
-    const svg=$("boardSvg");
-    const handlers=[];
-    function cleanup(value){handlers.forEach(([el,fn])=>el.removeEventListener("click",fn));resolve(value)}
-    p.tokens.forEach((_,ti)=>{
-      if(!indices.includes(ti))return;
-      const fn=()=>cleanup(ti);
-      const els=svg.querySelectorAll(".ludoToken");
-      const el=els[game.players.slice(0,game.turn).reduce((n,x)=>n+x.tokens.length,0)+ti];
-      if(el){el.addEventListener("click",fn);handlers.push([el,fn])}
-    });
-    setTimeout(()=>{if(handlers.length)cleanup(null)},10000);
-  });
-}
-async function requestToken(pi,ti){
-  if(!game||game.mode!=="ludo"||game.over||busy||pi!==game.turn)return;
-  if(online&&!isHost){
-    hostConn&&safeSend(hostConn,{type:"action",action:"token",token:ti});
+/* ==========================================
+   CREATE ROOM — HOST
+========================================== */
+
+$("createRoom").addEventListener("click", createRoom);
+
+function createRoom() {
+  if (typeof Peer === "undefined") {
+    setStatus("PeerJS gagal dimuat. Periksa internet atau pemblokir script, lalu muat ulang halaman.");
     return;
   }
-  if(game.lastRoll===0){toast("Lempar dadu dulu.");return}
-  await moveLudoToken(pi,ti,true,game.lastRoll);
-  busy=false;advanceTurn();renderGame();broadcastState();
-}
-async function moveLudoToken(index,tokenIndex,fromHost=false,rollOverride=null){
-  if(!game||game.mode!=="ludo")return;
-  if(online&&!isHost&&!fromHost){hostConn&&safeSend(hostConn,{type:"action",action:"token",token:tokenIndex});return}
-  const p=game.players[index],roll=rollOverride||game.lastRoll;
-  if(!p||!Number.isInteger(tokenIndex)||tokenIndex<0||tokenIndex>3)return;
-  let pos=p.tokens[tokenIndex];
-  if(pos===-1){
-    if(roll!==6){toast("Bidak hanya bisa keluar dengan angka enam.");return}
-    pos=0;p.tokens[tokenIndex]=pos;
-    addLog(`${p.name} mengeluarkan satu bidak.`);
-  }else{
-    if(pos+roll>57){addLog(`${p.name} perlu angka tepat untuk masuk rumah.`);return}
-    p.tokens[tokenIndex]=pos+roll;
-    if(p.tokens[tokenIndex]>=57){
-      p.tokens[tokenIndex]=57;p.finished++;
-      addLog(`${p.name} membawa satu bidak masuk rumah!`);
-      if(p.finished>=4)finishGame(index);
-    }else{
-      addLog(`${p.name} memindahkan bidak ${tokenIndex+1}.`);
-      const landing=(STARTS[index]+p.tokens[tokenIndex])%52;
-      game.players.forEach((other,oi)=>{
-        if(oi===index)return;
-        other.tokens.forEach((op,ot)=>{
-          if(op>=0&&op<52&&(STARTS[oi]+op)%52===landing){
-            other.tokens[ot]=-1;
-            addLog(`${other.name} terkena! Bidak kembali ke rumah awal.`);
-          }
-        });
-      });
-    }
+
+  resetNetwork();
+  setStatus("Menghubungkan ke layanan PeerJS…");
+  $("createRoom").disabled = true;
+  $("joinRoom").disabled = true;
+
+  roomCode = makeRoomCode();
+  const requestedId = "ludoverse-" + roomCode.toLowerCase();
+
+  try {
+    peer = new Peer(requestedId);
+  } catch (err) {
+    finishConnectButtons();
+    setStatus("Gagal membuat koneksi: " + err.message);
+    return;
   }
-  renderGame();await wait(220);
-}
-function finishGame(index){
-  game.over=true;game.winner=index;
-  $("winEmoji").textContent=game.players[index].character||"🏆";
-  $("winTitle").textContent="Well played!";
-  $("winText").textContent=`${game.players[index].name} memenangkan permainan. Selamat!`;
-  $("winOverlay").classList.remove("hidden");
-  addLog(`${game.players[index].name} memenangkan permainan!`);
-  renderGame();broadcastState();
+
+  peer.on("open", id => {
+    myPeerId = id;
+    hostPeerId = id;
+    isHost = true;
+    online = true;
+
+    state = {
+      roomCode,
+      world: selectedWorld,
+      started: false,
+      turn: 0,
+      lastRoll: null,
+      winner: null,
+      busy: false,
+      players: [{
+        peerId: myPeerId,
+        name: cleanName(),
+        color: colors[0],
+        pos: 1
+      }]
+    };
+
+    $("roomCode").textContent = roomCode;
+    $("roomDisplay").style.display = "block";
+    $("copyRoom").disabled = false;
+
+    setStatus("Room berhasil dibuat. Bagikan kode kepada teman.");
+    setNetwork("HOST · ROOM " + roomCode);
+    renderLobby();
+    updateStartButton();
+
+    finishConnectButtons();
+  });
+
+  peer.on("connection", conn => {
+    conn.on("open", () => {
+      conn.on("data", data => handleHostMessage(conn, data));
+      conn.on("close", () => handleDisconnect(conn));
+      conn.on("error", () => handleDisconnect(conn));
+    });
+  });
+
+  peer.on("error", err => {
+    console.error("PeerJS host error:", err);
+
+    if (err.type === "unavailable-id") {
+      setStatus("Kode room bentrok. Coba buat room baru.");
+    } else if (err.type === "network") {
+      setStatus("Jaringan PeerJS terputus. Periksa internet.");
+    } else {
+      setStatus("Koneksi gagal: " + (err.message || err.type));
+    }
+
+    finishConnectButtons();
+  });
+
+  peer.on("disconnected", () => {
+    setNetwork("KONEKSI TERPUTUS");
+    if (peer && !peer.destroyed) {
+      peer.reconnect();
+    }
+  });
 }
 
-/* ---------- start / stop / initial ---------- */
-function stopGameOnly(){busy=false;game=null;showLobby()}
-applyTheme();renderLobbyPlayers([]);
-renderDice(0);
+function finishConnectButtons() {
+  $("createRoom").disabled = false;
+  $("joinRoom").disabled = false;
+}
+
+/* ==========================================
+   JOIN ROOM — GUEST
+========================================== */
+
+$("joinRoom").addEventListener("click", joinRoom);
+
+function joinRoom() {
+  if (typeof Peer === "undefined") {
+    setStatus("PeerJS gagal dimuat. Periksa internet atau muat ulang halaman.");
+    return;
+  }
+
+  const code = normalizeCode($("roomInput").value);
+
+  if (code.length !== 6) {
+    setStatus("Masukkan kode room enam karakter.");
+    return;
+  }
+
+  resetNetwork();
+
+  roomCode = code;
+  hostPeerId = "ludoverse-" + code.toLowerCase();
+
+  $("createRoom").disabled = true;
+  $("joinRoom").disabled = true;
+  setStatus("Mencari room " + code + "…");
+
+  try {
+    peer = new Peer();
+  } catch (err) {
+    finishConnectButtons();
+    setStatus("Gagal memulai koneksi: " + err.message);
+    return;
+  }
+
+  peer.on("open", id => {
+    myPeerId = id;
+    isHost = false;
+
+    const conn = peer.connect(hostPeerId, {
+      reliable: true,
+      serialization: "json"
+    });
+
+    let joined = false;
+
+    conn.on("open", () => {
+      joined = true;
+      online = true;
+
+      connections.set(hostPeerId, conn);
+      conn.on("data", data => handleGuestMessage(data));
+      conn.on("close", () => {
+        online = false;
+        setStatus("Koneksi ke host terputus. Room mungkin sudah ditutup.");
+        setNetwork("TERPUTUS DARI HOST");
+        $("roll").disabled = true;
+      });
+
+      conn.send({
+        type: "hello",
+        name: cleanName(),
+        peerId: myPeerId
+      });
+
+      setStatus("Terhubung. Menunggu informasi lobby…");
+      setNetwork("TERHUBUNG · ROOM " + roomCode);
+      finishConnectButtons();
+    });
+
+    conn.on("error", err => {
+      console.error("PeerJS guest connection:", err);
+      if (!joined) {
+        setStatus("Tidak dapat masuk room. Pastikan kode benar dan host masih online.");
+        finishConnectButtons();
+      }
+    });
+
+    setTimeout(() => {
+      if (!joined && !gameStarted) {
+        setStatus("Belum ada respons dari host. Pastikan host sudah membuat room.");
+        finishConnectButtons();
+      }
+    }, 12000);
+  });
+
+  peer.on("error", err => {
+    console.error("PeerJS guest error:", err);
+    setStatus("Koneksi gagal: " + (err.message || err.type));
+    finishConnectButtons();
+  });
+
+  peer.on("disconnected", () => {
+    setNetwork("KONEKSI TERPUTUS");
+    if (peer && !peer.destroyed) peer.reconnect();
+  });
+}
+
+/* ==========================================
+   HOST MESSAGE HANDLER
+========================================== */
+
+function handleHostMessage(conn, data) {
+  if (!isHost || !state || !data || typeof data.type !== "string") return;
+
+  if (data.type === "hello") {
+    if (state.started) {
+      conn.send({ type: "reject", reason: "Permainan sudah dimulai." });
+      conn.close();
+      return;
+    }
+
+    if (state.players.length >= 4) {
+      conn.send({ type: "reject", reason: "Room sudah penuh (maksimal 4 pemain)." });
+      conn.close();
+      return;
+    }
+
+    if (state.players.some(p => p.peerId === conn.peer)) return;
+
+    const player = {
+      peerId: conn.peer,
+      name: safePlayerName(data.name),
+      color: colors[state.players.length],
+      pos: 1
+    };
+
+    connections.set(conn.peer, conn);
+    state.players.push(player);
+
+    conn.send({ type: "welcome", myPeerId: conn.peer, roomCode });
+    broadcastLobby();
+    return;
+  }
+
+  if (data.type === "action") {
+    if (!state.started || hostBusy || state.winner !== null) return;
+
+    const playerIndex = state.players.findIndex(p => p.peerId === conn.peer);
+    if (playerIndex < 0 || playerIndex !== state.turn) return;
+
+    if (data.action === "roll") {
+      hostRoll(playerIndex);
+    }
+  }
+}
+
+function safePlayerName(value) {
+  if (typeof value !== "string") return "Pemain";
+  return value.trim().replace(/[<>]/g, "").slice(0, 16) || "Pemain";
+}
+
+function handleDisconnect(conn) {
+  if (!isHost || !state) return;
+
+  const id = conn.peer;
+  connections.delete(id);
+
+  const index = state.players.findIndex(p => p.peerId === id);
+  if (index < 0) return;
+
+  const wasCurrent = index === state.turn;
+
+  state.players.splice(index, 1);
+
+  if (state.turn > index) state.turn--;
+  if (state.turn >= state.players.length) state.turn = 0;
+
+  if (state.players.length === 0) {
+    setStatus("Semua pemain keluar. Buat room baru untuk bermain.");
+    return;
+  }
+
+  if (state.started && wasCurrent && !hostBusy) {
+    advanceTurn(false);
+  }
+
+  broadcastState();
+  renderLobby();
+}
+
+/* ==========================================
+   LOBBY SYNC
+========================================== */
+
+function broadcastLobby() {
+  if (!isHost || !state) return;
+
+  const packet = {
+    type: "lobby",
+    roomCode,
+    world: selectedWorld,
+    players: state.players.map(p => ({
+      peerId: p.peerId,
+      name: p.name,
+      color: p.color,
+      pos: p.pos
+    }))
+  };
+
+  for (const conn of connections.values()) {
+    if (conn.open) conn.send(packet);
+  }
+
+  renderLobby();
+  updateStartButton();
+}
+
+function renderLobby() {
+  if (!state) return;
+
+  $("lobbyPlayers").textContent =
+    "Pemain (" + state.players.length + "/4): " +
+    state.players.map(p => p.name).join(" · ");
+
+  updateStartButton();
+}
+
+function updateStartButton() {
+  $("startGame").disabled = !(isHost && online && state && !state.started);
+}
+
+function handleGuestMessage(data) {
+  if (!data || typeof data.type !== "string") return;
+
+  if (data.type === "reject") {
+    setStatus(data.reason || "Tidak dapat masuk room.");
+    online = false;
+    $("roll").disabled = true;
+    return;
+  }
+
+  if (data.type === "welcome") {
+    myPeerId = data.myPeerId || myPeerId;
+    setStatus("Berhasil bergabung ke room " + roomCode + ".");
+    return;
+  }
+
+  if (data.type === "lobby") {
+    roomCode = data.roomCode;
+    selectedWorld = data.world || selectedWorld;
+    state = {
+      roomCode,
+      world: selectedWorld,
+      started: false,
+      turn: 0,
+      winner: null,
+      busy: false,
+      players: data.players
+    };
+
+    applyWorld();
+    $("roomCode").textContent = roomCode;
+    $("roomDisplay").style.display = "block";
+    $("lobbyPlayers").textContent =
+      "Pemain (" + data.players.length + "/4): " +
+      data.players.map(p => p.name).join(" · ");
+
+    $("startGame").disabled = true;
+    return;
+  }
+
+  if (data.type === "state") {
+    state = data.state;
+    selectedWorld = state.world || selectedWorld;
+    gameStarted = state.started;
+
+    applyWorld();
+    syncGameUI();
+  }
+}
+
+/* ==========================================
+   START GAME
+========================================== */
+
+$("startGame").addEventListener("click", () => {
+  if (!isHost || !state || state.started || !online) return;
+
+  if (state.players.length < 1 || state.players.length > 4) return;
+
+  selectedWorld = selectedWorld || "neon";
+  state.world = selectedWorld;
+  state.started = true;
+  state.turn = 0;
+  state.lastRoll = null;
+  state.winner = null;
+  state.busy = false;
+  state.players.forEach(p => p.pos = 1);
+
+  gameStarted = true;
+
+  $("menu").classList.add("hidden");
+  $("gameScreen").classList.remove("hidden");
+  $("win").classList.add("hidden");
+
+  createBoard();
+  createDecor();
+  broadcastState();
+  showToast("LET THE GAME BEGIN", worlds[selectedWorld].accent);
+  playTone(520, .12);
+});
+
+function showGameScreen() {
+  $("menu").classList.add("hidden");
+  $("gameScreen").classList.remove("hidden");
+  $("win").classList.add("hidden");
+
+  createBoard();
+  createDecor();
+}
+
+/* ==========================================
+   AUTHORITATIVE GAME STATE
+========================================== */
+
+function getSnapshot() {
+  return JSON.parse(JSON.stringify(state));
+}
+
+function broadcastState() {
+  if (!isHost || !state) return;
+
+  const packet = {
+    type: "state",
+    state: getSnapshot()
+  };
+
+  for (const conn of connections.values()) {
+    if (conn.open) {
+      try { conn.send(packet); } catch (err) {
+        console.warn("State send failed:", err);
+      }
+    }
+  }
+
+  syncGameUI();
+}
+
+function syncGameUI() {
+  if (!state) return;
+
+  selectedWorld = state.world || selectedWorld;
+  gameStarted = state.started;
+  applyWorld();
+
+  if (!state.started) {
+    $("menu").classList.remove("hidden");
+    $("gameScreen").classList.add("hidden");
+    renderLobby();
+    return;
+  }
+
+  showGameScreen();
+
+  $("modeName").textContent = worlds[selectedWorld].name;
+  $("gameRoomLabel").textContent = "ROOM " + state.roomCode;
+
+  const current = state.players[state.turn];
+  $("turnText").textContent = state.winner !== null
+    ? "PERMAINAN SELESAI"
+    : current
+      ? (current.peerId === myPeerId ? "GILIRAN KAMU" : "GILIRAN " + current.name.toUpperCase())
+      : "MENUNGGU PEMAIN";
+
+  $("networkBadge").textContent =
+    (isHost ? "HOST" : "ONLINE") + " · " +
+    state.players.length + "/4 PEMAIN · " + state.roomCode;
+
+  renderPlayers();
+  updatePieces();
+
+  const isMyTurn = current && current.peerId === myPeerId;
+  $("roll").disabled = !online || !isMyTurn || state.busy || state.winner !== null;
+  $("roll").textContent = state.busy ? "MEMPROSES…" : "LEMPAR DADU";
+
+  if (state.winner !== null) {
+    $("winText").textContent =
+      state.players[state.winner]?.name + " mencapai kotak 100!";
+    $("win").classList.remove("hidden");
+  } else {
+    $("win").classList.add("hidden");
+  }
+}
+
+/* ==========================================
+   BOARD
+========================================== */
+
+function cellPosition(number) {
+  const n = number - 1;
+  const row = Math.floor(n / 10);
+  let col = n % 10;
+
+  if (row % 2 === 1) col = 9 - col;
+
+  return {
+    x: (col + .5) * 10,
+    y: (9 - row + .5) * 10
+  };
+}
+
+function createBoard() {
+  const board = $("board");
+  board.innerHTML = "";
+
+  for (let displayRow = 0; displayRow < 10; displayRow++) {
+    const row = 9 - displayRow;
+    const leftToRight = row % 2 === 0;
+
+    for (let col = 0; col < 10; col++) {
+      const number = row * 10 + (leftToRight ? col : 9 - col) + 1;
+      const cell = document.createElement("div");
+      cell.className = "cell";
+
+      if (maps[selectedWorld].ladders[number] ||
+          maps[selectedWorld].snakes[number]) {
+        cell.classList.add("special");
+      }
+
+      const label = document.createElement("div");
+      label.className = "cellNumber";
+      label.textContent = number;
+      cell.appendChild(label);
+      board.appendChild(cell);
+    }
+  }
+}
+
+function createDecor() {
+  const decor = $("decor");
+  decor.innerHTML = "";
+
+  const map = maps[selectedWorld];
+
+  for (const [from, to] of Object.entries(map.ladders)) {
+    addRoute(Number(from), Number(to), "ladder");
+  }
+
+  for (const [from, to] of Object.entries(map.snakes)) {
+    addRoute(Number(from), Number(to), "snake");
+  }
+}
+
+function addRoute(from, to, type) {
+  const a = cellPosition(from);
+  const b = cellPosition(to);
+
+  const x1 = a.x / 100 * $("boardWrap").clientWidth;
+  const y1 = a.y / 100 * $("boardWrap").clientHeight;
+  const x2 = b.x / 100 * $("boardWrap").clientWidth;
+  const y2 = b.y / 100 * $("boardWrap").clientHeight;
+
+  const dx = x2 - x1;
+  const dy = y2 - y1;
+  const length = Math.hypot(dx, dy);
+  const angle = Math.atan2(dy, dx);
+
+  const el = document.createElement("div");
+  el.className = "route " + type;
+  el.textContent = type === "ladder"
+    ? worlds[selectedWorld].ladder
+    : worlds[selectedWorld].snake;
+
+  el.style.left = a.x + "%";
+  el.style.top = a.y + "%";
+  el.style.width = length + "px";
+  el.style.height = "auto";
+  el.style.transform = `translate(-50%,-50%) rotate(${angle}rad)`;
+  el.style.transformOrigin = "center center";
+  el.style.color = type === "ladder"
+    ? worlds[selectedWorld].accent
+    : worlds[selectedWorld].accent2;
+
+  $("decor").appendChild(el);
+}
+
+/* ==========================================
+   PLAYER RENDERING
+========================================== */
+
+function renderPlayers() {
+  if (!state) return;
+
+  const container = $("players");
+  container.innerHTML = "";
+
+  state.players.forEach((p, i) => {
+    const card = document.createElement("div");
+    card.className = "playerCard";
+    if (i === state.turn) card.classList.add("active");
+
+    const row = document.createElement("div");
+    row.className = "playerRow";
+
+    const dot = document.createElement("span");
+    dot.className = "dot";
+    dot.style.background = p.color;
+    dot.style.color = p.color;
+
+    const name = document.createElement("b");
+    name.textContent = p.name + (p.peerId === myPeerId ? " (KAMU)" : "");
+
+    const score = document.createElement("span");
+    score.className = "playerScore";
+    score.textContent = p.pos;
+
+    row.append(dot, name, score);
+    card.appendChild(row);
+    container.appendChild(card);
+  });
+}
+
+function updatePieces() {
+  if (!state) return;
+
+  const container = $("pieces");
+  container.innerHTML = "";
+
+  const offsets = [
+    [-10, -10], [10, -10], [-10, 10], [10, 10]
+  ];
+
+  state.players.forEach((p, i) => {
+    const pos = cellPosition(p.pos);
+    const piece = document.createElement("div");
+
+    piece.className = "piece";
+    piece.textContent = String(i + 1);
+    piece.style.background = p.color;
+    piece.style.color = p.color;
+    piece.style.left = `calc(${pos.x}% + ${offsets[i][0]}px)`;
+    piece.style.top = `calc(${pos.y}% + ${offsets[i][1]}px)`;
+
+    container.appendChild(piece);
+  });
+}
+
+/* ==========================================
+   DICE — REQUESTED BY CURRENT PLAYER
+========================================== */
+
+$("roll").addEventListener("click", () => {
+  if (!online || !state || !state.started || state.busy) return;
+
+  const current = state.players[state.turn];
+  if (!current || current.peerId !== myPeerId) return;
+
+  if (isHost) {
+    hostRoll(state.turn);
+  } else {
+    const conn = connections.get(hostPeerId);
+    if (conn && conn.open) {
+      conn.send({ type: "action", action: "roll" });
+      $("roll").disabled = true;
+      $("roll").textContent = "MENUNGGU HOST…";
+    } else {
+      setNetwork("KONEKSI HOST TIDAK TERSEDIA");
+    }
+  }
+});
+
+async function hostRoll(index) {
+  if (!isHost || !state || hostBusy || !state.started) return;
+  if (index !== state.turn || state.winner !== null) return;
+
+  hostBusy = true;
+  state.busy = true;
+  broadcastState();
+
+  const result = await animateDice();
+
+  if (!state || !state.players[index]) {
+    hostBusy = false;
+    return;
+  }
+
+  state.lastRoll = result;
+  showToast("DADU: " + result, worlds[selectedWorld].accent);
+  playTone(300 + result * 70, .15);
+
+  await moveAuthoritative(index, result);
+
+  if (state.winner === null) {
+    if (result !== 6) advanceTurn(true);
+    else {
+      state.busy = false;
+      showToast("DAPAT 6! GILIRAN LAGI", worlds[selectedWorld].accent2);
+    }
+  }
+
+  hostBusy = false;
+  state.busy = false;
+  broadcastState();
+}
+
+function animateDice() {
+  return new Promise(resolve => {
+    const dice = $("dice");
+    dice.classList.add("rolling");
+    let count = 0;
+
+    const interval = setInterval(() => {
+      dice.textContent = diceFaces[1 + Math.floor(Math.random() * 6)];
+      count++;
+
+      if (count >= 12) {
+        clearInterval(interval);
+        const result = 1 + Math.floor(Math.random() * 6);
+        dice.textContent = diceFaces[result];
+        dice.classList.remove("rolling");
+        resolve(result);
+      }
+    }, 65);
+  });
+}
+
+/* ==========================================
+   AUTHORITATIVE MOVEMENT
+========================================== */
+
+async function moveAuthoritative(index, steps) {
+  if (!isHost || !state) return;
+
+  const player = state.players[index];
+
+  for (let step = 0; step < steps; step++) {
+    if (!player || player.pos >= 100) break;
+
+    player.pos++;
+    broadcastState();
+    playTone(220 + step * 12, .035);
+
+    await wait(180);
+  }
+
+  if (player.pos === 100) {
+    state.winner = index;
+    showToast("VICTORY!", worlds[selectedWorld].accent2);
+    broadcastState();
+    return;
+  }
+
+  const map = maps[selectedWorld];
+  const ladderTarget = map.ladders[player.pos];
+  const snakeTarget = map.snakes[player.pos];
+
+  if (ladderTarget) {
+    showToast(worlds[selectedWorld].ladder + " NAIK TANGGA!", worlds[selectedWorld].accent);
+    playTone(620, .12);
+    await wait(450);
+
+    player.pos = ladderTarget;
+    broadcastState();
+
+    await wait(350);
+  } else if (snakeTarget) {
+    showToast(worlds[selectedWorld].snake + " TURUN ULAR!", worlds[selectedWorld].accent2);
+    playTone(150, .22);
+    await wait(450);
+
+    player.pos = snakeTarget;
+    broadcastState();
+
+    await wait(350);
+  }
+
+  if (player.pos >= 100) {
+    state.winner = index;
+    broadcastState();
+  }
+}
+
+function advanceTurn(broadcast = true) {
+  if (!state || state.players.length === 0) return;
+
+  state.turn = (state.turn + 1) % state.players.length;
+  state.busy = false;
+
+  if (broadcast) broadcastState();
+}
+
+/* ==========================================
+   VISUAL FEEDBACK AND SOUND
+========================================== */
+
+function showToast(message, color) {
+  const el = $("toast");
+  el.textContent = message;
+  el.style.color = color;
+  el.classList.add("show");
+
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove("show"), 1400);
+}
+
+let audioContext = null;
+
+function playTone(frequency, duration) {
+  try {
+    audioContext ||= new (window.AudioContext || window.webkitAudioContext)();
+
+    const oscillator = audioContext.createOscillator();
+    const gain = audioContext.createGain();
+
+    oscillator.type = "sine";
+    oscillator.frequency.value = frequency;
+    gain.gain.value = .035;
+
+    oscillator.connect(gain);
+    gain.connect(audioContext.destination);
+
+    gain.gain.exponentialRampToValueAtTime(
+      .001, audioContext.currentTime + duration
+    );
+
+    oscillator.start();
+    oscillator.stop(audioContext.currentTime + duration);
+  } catch (_) {}
+}
+
+function wait(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+/* ==========================================
+   COPY ROOM CODE
+========================================== */
+
+$("copyRoom").addEventListener("click", async () => {
+  if (!roomCode) return;
+
+  try {
+    await navigator.clipboard.writeText(roomCode);
+    setStatus("Kode room berhasil disalin: " + roomCode);
+  } catch (_) {
+    $("roomInput").value = roomCode;
+    $("roomInput").select();
+    setStatus("Kode ditampilkan di kolom room. Salin secara manual.");
+  }
+});
+
+/* ==========================================
+   BACK TO LOBBY
+========================================== */
+
+$("backMenu").addEventListener("click", () => {
+  $("win").classList.add("hidden");
+  $("gameScreen").classList.add("hidden");
+  $("menu").classList.remove("hidden");
+
+  if (isHost && state) {
+    state.started = false;
+    state.winner = null;
+    state.busy = false;
+    state.players.forEach(p => p.pos = 1);
+    gameStarted = false;
+    broadcastLobby();
+    broadcastState();
+  } else {
+    setStatus("Permainan selesai. Kamu bisa keluar atau bergabung ke room lain.");
+  }
+});
+
+/* ==========================================
+   AMBIENT PARTICLES
+========================================== */
+
+const canvas = $("particles");
+const ctx = canvas.getContext("2d");
+let W = 0, H = 0;
+let particles = [];
+
+function resizeParticles() {
+  W = window.innerWidth;
+  H = window.innerHeight;
+  const ratio = Math.min(window.devicePixelRatio || 1, 2);
+
+  canvas.width = Math.floor(W * ratio);
+  canvas.height = Math.floor(H * ratio);
+  canvas.style.width = W + "px";
+  canvas.style.height = H + "px";
+  ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
+
+  particles = Array.from({length: 65}, () => ({
+    x: Math.random() * W,
+    y: Math.random() * H,
+    r: Math.random() * 1.7 + .4,
+    speed: Math.random() * .25 + .05,
+    alpha: Math.random() * .55 + .15
+  }));
+}
+
+function animateParticles() {
+  ctx.clearRect(0, 0, W, H);
+  ctx.fillStyle = worlds[selectedWorld].accent;
+
+  for (const p of particles) {
+    p.y -= p.speed;
+    if (p.y < -5) {
+      p.y = H + 5;
+      p.x = Math.random() * W;
+    }
+
+    ctx.globalAlpha = p.alpha;
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  ctx.globalAlpha = 1;
+  requestAnimationFrame(animateParticles);
+}
+
+window.addEventListener("resize", () => {
+  resizeParticles();
+  if (gameStarted && state) createDecor();
+});
+
+applyWorld();
+resizeParticles();
+animateParticles();
+
+setNetwork("BELUM TERHUBUNG");
+```
 </script>
 </body>
 </html>
+```
