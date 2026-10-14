@@ -77,6 +77,25 @@ body.game-active .footer{display:none}
 @media(max-width:850px){body.game-active main{padding:10px 10px 20px}body.game-active .game-layout{grid-template-columns:minmax(0,1fr)}body.game-active .board-wrap{max-width:min(84vw,64vh,680px)}body.game-active .side-stack{position:static;grid-template-columns:repeat(2,minmax(0,1fr))}body.game-active .side-stack>.panel:nth-of-type(2){grid-column:1/-1}body.game-active .game-head{align-items:center}}
 @media(max-width:520px){body.game-active .game-head{gap:8px}body.game-active .game-head .btn{padding:10px 12px;font-size:11px;white-space:nowrap}body.game-active .game-head .eyebrow{font-size:8px;letter-spacing:1.5px}body.game-active .game-head h2{font-size:19px}body.game-active .game-head p{font-size:10px}body.game-active .side-stack{grid-template-columns:1fr}body.game-active .side-stack>.panel:nth-of-type(2){grid-column:auto}body.game-active .board-wrap{max-width:100%}}
 
+
+/* FIX: logo tengah tidak lagi menutupi kotak papan Ular Tangga */
+.snakes-board .board-center{
+  position:absolute !important;
+  inset:40% !important;
+  grid-column:auto !important;
+  grid-row:auto !important;
+  z-index:0 !important;
+  background:transparent !important;
+  border:0 !important;
+  border-radius:0 !important;
+  box-shadow:none !important;
+  opacity:.12 !important;
+  pointer-events:none !important;
+}
+.snakes-board .board-center .center-logo{font-size:clamp(10px,2vw,20px) !important}
+.snakes-board .board-center strong,.snakes-board .board-center span{display:none !important}
+.snakes-board .tile{z-index:1}
+
 </style>
 </head>
 <body data-theme="neon">
