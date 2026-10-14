@@ -1,1510 +1,217 @@
-```html
 <!DOCTYPE html>
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<meta name="theme-color" content="#10101c">
-<title>LUDOVERSE — Online Adventure</title>
-
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#080d19">
+<title>LUDOVERSE — Play Beyond Worlds</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Orbitron:wght@500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
 <style>
-:root {
-  --bg1:#080b19;
-  --bg2:#171126;
-  --glow:rgba(0,245,255,.15);
-  --accent:#00f5ff;
-  --accent2:#ff2bd6;
-  --gold:#e8c887;
-  --panel:rgba(12,15,29,.88);
-  --muted:#929bb1;
-}
-* {
-  box-sizing:border-box;
-  -webkit-tap-highlight-color:transparent;
-}
-html,body {
-  margin:0;width:100%;height:100%;
-  overflow:hidden;color:#fff;
-  font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif;
-  background:#080b19;
-}
-button,input,select {font:inherit}
-button {cursor:pointer}
-button:disabled {opacity:.45;cursor:not-allowed}
-#background {
-  position:fixed;inset:0;z-index:0;
-  background:
-    radial-gradient(ellipse at 50% 15%,var(--glow),transparent 55%),
-    linear-gradient(135deg,var(--bg1),var(--bg2));
-  transition:background .7s ease;
-}
-#background:after {
-  content:"";position:absolute;inset:0;
-  pointer-events:none;
-  background:radial-gradient(ellipse,transparent 25%,#0008 100%);
-}
-#particles {position:fixed;inset:0;width:100%;height:100%;pointer-events:none}
-#app {position:relative;width:100%;height:100%;z-index:1}
-.screen {
-  position:absolute;inset:0;
-  display:flex;align-items:center;justify-content:center;
-  padding:20px;
-  opacity:1;transform:translateY(0) scale(1);
-  transition:opacity .35s ease,transform .35s ease;
-}
-.screen.hidden {
-  opacity:0;pointer-events:none;
-  transform:translateY(12px) scale(.985);
-}
-.menuCard {
-  width:min(1050px,96vw);max-height:94dvh;overflow:auto;
-  padding:clamp(20px,4vw,40px);
-  border:1px solid #ffffff20;border-radius:28px;
-  background:linear-gradient(135deg,#0a0d1eeF,#151025eF);
-  box-shadow:0 30px 100px #0009,0 0 70px var(--glow);
-  backdrop-filter:blur(24px);
-  scrollbar-width:thin;
-}
-.brand{text-align:center}
-.brandSmall {
-  font-size:10px;letter-spacing:5px;color:var(--gold);
-}
-.logo {
-  margin:14px 0 0;
-  font-size:clamp(42px,9vw,88px);
-  line-height:.95;font-weight:1000;letter-spacing:-.065em;
-  background:linear-gradient(90deg,var(--accent),#fff,var(--accent2));
-  -webkit-background-clip:text;background-clip:text;color:transparent;
-  filter:drop-shadow(0 0 24px var(--glow));
-}
-.description {
-  max-width:600px;margin:20px auto 0;
-  color:var(--muted);font-size:13px;line-height:1.8;
-}
-.sectionTitle {
-  margin-top:28px;font-size:10px;letter-spacing:3px;
-  color:var(--gold);font-weight:800;
-}
-.worlds {
-  display:grid;grid-template-columns:repeat(3,minmax(0,1fr));
-  gap:10px;margin-top:12px;
-}
-.world {
-  min-height:115px;padding:15px;
-  border:1px solid #ffffff12;border-radius:16px;
-  background:#ffffff06;cursor:pointer;
-  transition:transform .25s,border-color .25s,background .25s;
-}
-.world:hover {transform:translateY(-3px);border-color:var(--accent)}
-.world.active {
-  border-color:var(--accent);
-  background:color-mix(in srgb,var(--accent) 10%,transparent);
-  box-shadow:0 0 22px color-mix(in srgb,var(--accent) 12%,transparent);
-}
-.worldIcon {font-size:30px}
-.worldName {margin-top:7px;font-weight:900;font-size:13px}
-.worldDesc {margin-top:4px;color:var(--muted);font-size:10px}
-.field {
-  width:100%;min-width:0;padding:13px 14px;
-  color:#fff;background:#ffffff09;
-  border:1px solid #ffffff20;border-radius:12px;
-  outline:none;
-}
-.field:focus {border-color:var(--accent)}
-.onlineBox {
-  margin-top:20px;padding:18px;
-  border:1px solid #ffffff16;border-radius:18px;
-  background:#ffffff05;
-}
-.onlineGrid {
-  display:grid;grid-template-columns:1fr 1fr;gap:12px;
-}
-.onlineGrid label {
-  display:block;margin-bottom:7px;
-  color:var(--muted);font-size:11px;
-}
-.actions {display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
-.btn {
-  border:1px solid #ffffff1c;border-radius:12px;
-  padding:13px 16px;color:#fff;
-  background:#ffffff0c;transition:transform .2s,filter .2s;
-}
-.btn:hover {transform:translateY(-2px);filter:brightness(1.15)}
-.btnPrimary {
-  color:#071019;font-weight:950;border:0;
-  background:linear-gradient(100deg,var(--accent),var(--accent2));
-}
-.btnGold {
-  color:#19140a;font-weight:900;border:0;
-  background:linear-gradient(100deg,#e8c887,#fff0b9);
-}
-.btnWide {width:100%;margin-top:14px}
-#connectionStatus {
-  margin-top:12px;font-size:12px;color:var(--muted);
-  line-height:1.6;overflow-wrap:anywhere;
-}
-#roomDisplay {display:none;margin-top:12px}
-.roomCode {
-  font-size:clamp(25px,5vw,40px);font-weight:1000;
-  letter-spacing:7px;color:var(--gold);
-}
-#lobbyPlayers {margin-top:10px;color:var(--muted);font-size:12px;line-height:1.9}
-#gameScreen {display:block;padding:0}
-#topbar {
-  position:absolute;top:12px;left:12px;right:12px;
-  display:flex;align-items:center;justify-content:space-between;
-  gap:10px;z-index:10;pointer-events:none;
-}
-.glass {
-  padding:10px 13px;border:1px solid #ffffff18;
-  border-radius:13px;background:#070a15b8;
-  backdrop-filter:blur(14px);box-shadow:0 8px 25px #0004;
-}
-.modeName {font-size:13px;font-weight:900}
-.turnText {margin-top:4px;font-size:10px;letter-spacing:1px;color:var(--gold)}
-#boardWrap {
-  position:absolute;left:50%;top:50%;
-  transform:translate(-50%,-50%);
-  width:min(84vw,72dvh,660px);aspect-ratio:1;
-  filter:drop-shadow(0 24px 55px #0009);
-  transition:transform .35s ease;
-}
-#board {
-  position:absolute;inset:0;display:grid;
-  grid-template-columns:repeat(10,1fr);
-  grid-template-rows:repeat(10,1fr);
-  border:2px solid #ffffff30;border-radius:17px;
-  overflow:hidden;background:#0c1224;
-}
-.cell {
-  position:relative;display:flex;align-items:center;justify-content:center;
-  border:1px solid #ffffff0c;
-  color:#ffffff99;font-size:clamp(7px,1.25vw,12px);
-  font-weight:900;transition:background .3s;
-}
-.cell:nth-child(odd){background:#ffffff08}
-.cell:nth-child(even){background:#ffffff02}
-.cell.special {background:color-mix(in srgb,var(--accent) 14%,transparent)}
-.cellNumber {position:absolute;top:3px;left:4px;opacity:.8}
-#decor,#pieces {position:absolute;inset:0;pointer-events:none}
-#decor {z-index:3;overflow:hidden}
-#pieces {z-index:5}
-.route {
-  position:absolute;display:flex;align-items:center;justify-content:center;
-  height:5px;transform-origin:left center;border-radius:10px;
-  font-size:clamp(12px,2vw,22px);filter:drop-shadow(0 0 5px currentColor);
-}
-.piece {
-  position:absolute;width:6.2%;height:6.2%;min-width:17px;min-height:17px;
-  display:flex;align-items:center;justify-content:center;
-  border:2px solid #fff;border-radius:50%;
-  transform:translate(-50%,-50%);
-  box-shadow:0 0 13px currentColor,0 4px 8px #0008;
-  font-size:10px;font-weight:1000;
-  transition:left .23s cubic-bezier(.2,.8,.2,1),top .23s cubic-bezier(.2,.8,.2,1);
-}
-.piece:after {
-  content:"";position:absolute;top:17%;left:17%;width:32%;height:32%;
-  background:#fff;border-radius:50%;opacity:.85;
-}
-#players {
-  position:absolute;top:78px;right:12px;z-index:8;
-  display:flex;flex-direction:column;gap:7px;max-width:180px;
-}
-.playerCard {
-  min-width:120px;padding:9px 11px;border-radius:11px;
-  border:1px solid #ffffff18;background:#080b18bd;
-  backdrop-filter:blur(10px);transition:border-color .25s,transform .25s;
-}
-.playerCard.active {
-  border-color:var(--accent);
-  box-shadow:0 0 20px color-mix(in srgb,var(--accent) 20%,transparent);
-  transform:translateX(-3px);
-}
-.playerRow {display:flex;align-items:center;gap:7px;font-size:11px}
-.dot {width:9px;height:9px;border-radius:50%;flex:none;box-shadow:0 0 9px currentColor}
-.playerScore {margin-left:auto;color:var(--muted);font-size:10px}
-#diceArea {
-  position:absolute;left:50%;bottom:17px;transform:translateX(-50%);
-  display:flex;align-items:center;gap:10px;z-index:12;
-}
-#dice {
-  width:62px;height:62px;display:flex;align-items:center;justify-content:center;
-  border-radius:15px;border:1px solid #ffffff24;
-  background:linear-gradient(135deg,#ffffff1d,#ffffff05);
-  box-shadow:0 12px 30px #0006,inset 0 0 20px #fff08;
-  font-size:30px;backdrop-filter:blur(12px);
-  transition:transform .12s;
-}
-#dice.rolling {animation:diceShake .12s infinite alternate}
-@keyframes diceShake {
-  from{transform:rotate(-8deg) scale(.96)}
-  to{transform:rotate(8deg) scale(1.05)}
-}
-#roll {min-width:120px}
-#toast {
-  position:absolute;left:50%;top:40%;z-index:20;
-  transform:translate(-50%,-50%) scale(.8);
-  opacity:0;pointer-events:none;
-  font-size:clamp(23px,5vw,52px);font-weight:1000;
-  text-shadow:0 0 28px currentColor;
-  transition:opacity .25s,transform .4s cubic-bezier(.2,.8,.2,1);
-  text-align:center;white-space:nowrap;
-}
-#toast.show {opacity:1;transform:translate(-50%,-50%) scale(1)}
-#win {
-  position:absolute;inset:0;z-index:30;
-  display:flex;align-items:center;justify-content:center;
-  padding:20px;background:#000a;backdrop-filter:blur(12px);
-  opacity:1;transition:opacity .3s;
-}
-#win.hidden {opacity:0;pointer-events:none}
-.winCard {
-  width:min(420px,94vw);padding:35px;text-align:center;
-  border:1px solid #ffffff25;border-radius:24px;
-  background:#0c1020f2;box-shadow:0 30px 90px #000a;
-  animation:winEnter .55s cubic-bezier(.2,.8,.2,1);
-}
-@keyframes winEnter {
-  from{transform:translateY(18px) scale(.9);opacity:0}
-  to{transform:translateY(0) scale(1);opacity:1}
-}
-.winTitle {
-  font-size:clamp(42px,9vw,70px);font-weight:1000;
-  background:linear-gradient(90deg,var(--accent),#fff,var(--accent2));
-  -webkit-background-clip:text;background-clip:text;color:transparent;
-}
-.winText {margin-top:10px;color:var(--muted);line-height:1.6}
-#networkBadge {
-  position:absolute;left:12px;bottom:15px;z-index:10;
-  max-width:42vw;font-size:10px;color:#b8c3d8;
-  background:#070a15b8;padding:8px 10px;border-radius:10px;
-  border:1px solid #ffffff18;overflow-wrap:anywhere;
-}
-@media(max-width:650px) {
-  .screen{padding:10px}
-  .menuCard{padding:20px;border-radius:20px}
-  .worlds{grid-template-columns:repeat(2,minmax(0,1fr))}
-  .world{min-height:100px;padding:12px}
-  .worldIcon{font-size:25px}
-  .onlineGrid{grid-template-columns:1fr}
-  #boardWrap{width:min(94vw,64dvh)}
-  #players{top:70px;right:6px;gap:5px}
-  .playerCard{min-width:95px;padding:6px 8px}
-  .playerRow{font-size:10px}
-  #topbar{top:7px;left:7px;right:7px}
-  .glass{padding:7px 9px}
-  #diceArea{bottom:8px;gap:7px}
-  #dice{width:52px;height:52px;font-size:25px}
-  #roll{min-width:105px;padding:12px}
-  #networkBadge{left:7px;bottom:8px;max-width:34vw;font-size:9px}
-}
-@media(prefers-reduced-motion:reduce) {
-  *,*:before,*:after {
-    animation-duration:.01ms!important;
-    transition-duration:.01ms!important;
-    scroll-behavior:auto!important;
-  }
-}
+:root{--bg:#080d19;--panel:rgba(18,27,48,.78);--panel2:#111b30;--line:rgba(168,194,255,.15);--text:#f4f7ff;--muted:#8e9bb8;--accent:#7c5cff;--accent2:#28d9ff;--good:#3ce7a4;--danger:#ff5877;--gold:#ffd46a;--shadow:0 24px 80px #0007}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min-height:100vh;overflow-x:hidden}button,input{font:inherit}button{cursor:pointer;color:inherit;border:0}button:focus-visible,input:focus-visible{outline:2px solid var(--accent2);outline-offset:3px}
+.bgfx{position:fixed;inset:0;z-index:-3;background:radial-gradient(ellipse at 12% 12%,#35216a 0,transparent 35%),radial-gradient(ellipse at 85% 28%,#073c5a 0,transparent 32%),linear-gradient(135deg,#080d19,#0b1224 55%,#080d19);transition:background .5s}
+.bgfx:after{content:"";position:absolute;inset:0;opacity:.13;background-image:linear-gradient(#b9d7ff12 1px,transparent 1px),linear-gradient(90deg,#b9d7ff12 1px,transparent 1px);background-size:44px 44px;mask-image:linear-gradient(to bottom,#000,transparent 85%)}
+body[data-theme="forest"] .bgfx{background:radial-gradient(ellipse at 20% 10%,#194b3b,transparent 38%),radial-gradient(ellipse at 90% 50%,#233b20,transparent 36%),#07130f}
+body[data-theme="desert"] .bgfx{background:radial-gradient(ellipse at 20% 10%,#70411d,transparent 40%),radial-gradient(ellipse at 90% 50%,#5a2c1d,transparent 36%),#1b100d}
+body[data-theme="ocean"] .bgfx{background:radial-gradient(ellipse at 20% 10%,#075b79,transparent 40%),radial-gradient(ellipse at 90% 50%,#122d70,transparent 36%),#06131e}
+body[data-theme="inferno"] .bgfx{background:radial-gradient(ellipse at 20% 10%,#751e31,transparent 40%),radial-gradient(ellipse at 90% 50%,#652a11,transparent 36%),#19080d}
+body[data-theme="frost"] .bgfx{background:radial-gradient(ellipse at 20% 10%,#235a85,transparent 40%),radial-gradient(ellipse at 90% 50%,#39377b,transparent 36%),#091321}
+.topbar{height:76px;display:flex;align-items:center;justify-content:space-between;padding:0 clamp(18px,4vw,58px);border-bottom:1px solid var(--line);background:#080d19a6;backdrop-filter:blur(18px);position:sticky;top:0;z-index:20}
+.brand{display:flex;align-items:center;gap:12px}.brand-mark{width:42px;height:42px;border-radius:14px;background:linear-gradient(145deg,#a18aff,#5a3aff 60%,#23d9ff);display:grid;place-items:center;box-shadow:0 0 28px #795aff4d;font-size:21px;font-weight:900;transform:rotate(-5deg)}.brand-name{font:800 18px Orbitron,sans-serif;letter-spacing:1.5px}.brand-name span{color:#8c78ff}.brand-sub{font-size:10px;letter-spacing:2.5px;color:var(--muted);margin-top:3px}
+.top-right{display:flex;align-items:center;gap:10px}.status-pill{border:1px solid var(--line);border-radius:99px;padding:9px 13px;color:var(--muted);font-size:12px;display:flex;gap:8px;align-items:center}.dot{width:7px;height:7px;border-radius:50%;background:var(--good);box-shadow:0 0 12px var(--good)}.icon-btn{width:40px;height:40px;border:1px solid var(--line);background:#ffffff08;border-radius:13px}
+main{width:min(1240px,calc(100% - 36px));margin:auto;padding:38px 0 70px}.hero{display:grid;grid-template-columns:1.05fr .95fr;align-items:center;gap:40px;min-height:310px}.eyebrow{font-size:11px;font-weight:800;letter-spacing:3px;text-transform:uppercase;color:#9b8cff;display:flex;align-items:center;gap:10px}.eyebrow:before{content:"";width:25px;height:1px;background:currentColor}.hero h1{font:800 clamp(38px,5.6vw,72px)/1.04 Orbitron,sans-serif;letter-spacing:-2px;margin:18px 0}.hero h1 .gradient{background:linear-gradient(90deg,#b3a3ff,#67e4ff 70%,#8affd5);background-clip:text;color:transparent}.hero p{color:#a5b0ca;line-height:1.75;max-width:510px;margin:0;font-size:15px}.hero-actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:25px}.btn{padding:13px 18px;border-radius:13px;font-weight:800;font-size:13px;transition:transform .18s,filter .18s,background .18s}.btn:hover{transform:translateY(-2px);filter:brightness(1.1)}.btn-primary{background:linear-gradient(110deg,#785cff,#4f83ff);box-shadow:0 10px 28px #644eff3d}.btn-secondary{border:1px solid var(--line);background:#ffffff08}.btn-quiet{background:transparent;border:1px solid var(--line);color:var(--muted)}.hero-art{height:290px;position:relative;display:grid;place-items:center;perspective:700px}.orbit{position:absolute;width:245px;height:245px;border:1px solid #8f7cff4f;border-radius:50%;transform:rotateX(65deg) rotateZ(-18deg);animation:spin 22s linear infinite}.orbit.two{width:300px;height:300px;border-color:#45d9ff2c;transform:rotateX(68deg) rotateZ(35deg);animation-direction:reverse}.orbit:before,.orbit:after{content:"";position:absolute;width:9px;height:9px;border-radius:50%;background:#76e9ff;box-shadow:0 0 18px #76e9ff;top:13%;left:18%}.orbit:after{top:auto;left:auto;right:10%;bottom:25%;background:#a18aff;box-shadow:0 0 18px #a18aff}.hero-die{width:130px;height:130px;border-radius:29px;background:linear-gradient(145deg,#9b8aff,#543bcb 55%,#1eabd4);box-shadow:inset 8px 8px 20px #ffffff40,inset -10px -12px 22px #160c4b66,0 25px 65px #4e48ff55;display:grid;grid-template-columns:repeat(3,1fr);gap:12px;padding:24px;transform:rotate(-13deg) rotateX(12deg);animation:float 4s ease-in-out infinite}.pip{background:#fff;border-radius:50%;box-shadow:0 1px 3px #130a48}.pip:nth-child(2),.pip:nth-child(4){opacity:0}.hero-stats{display:flex;gap:24px;margin-top:27px}.stat strong{display:block;font:700 19px Orbitron,sans-serif}.stat span{font-size:11px;color:var(--muted);letter-spacing:.6px}
+@keyframes spin{to{transform:rotateX(65deg) rotateZ(342deg)}}@keyframes float{0%,100%{translate:0 0;rotate:0deg}50%{translate:0 -13px;rotate:4deg}}
+.section-head{display:flex;justify-content:space-between;align-items:end;gap:15px;margin:28px 0 15px}.section-title{font:700 18px Orbitron,sans-serif;letter-spacing:.2px}.section-desc{font-size:12px;color:var(--muted);margin-top:6px}.tiny-label{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--muted)}
+.world-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:12px}.world{--world:#7962ff;position:relative;min-height:132px;border-radius:18px;padding:15px 12px;text-align:left;border:1px solid var(--line);background:linear-gradient(150deg,color-mix(in srgb,var(--world) 18%,#111a2b),#111827 80%);overflow:hidden;transition:.22s}.world:before{content:"";position:absolute;width:100px;height:100px;border-radius:50%;background:var(--world);filter:blur(42px);opacity:.2;right:-35px;top:-35px}.world:hover{transform:translateY(-3px);border-color:color-mix(in srgb,var(--world) 75%,white)}.world.selected{border-color:var(--world);box-shadow:0 0 0 1px var(--world),0 12px 30px color-mix(in srgb,var(--world) 18%,transparent)}.world-icon{font-size:26px;display:block;margin-bottom:13px;filter:drop-shadow(0 5px 12px #0005)}.world strong{display:block;font-size:12px}.world small{display:block;color:var(--muted);font-size:10px;margin-top:5px}.world .check{position:absolute;right:10px;top:10px;border-radius:50%;width:18px;height:18px;display:grid;place-items:center;background:var(--world);font-size:11px;opacity:0}.world.selected .check{opacity:1}
+.mode-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}.mode-card{display:flex;align-items:center;gap:17px;text-align:left;border:1px solid var(--line);background:linear-gradient(110deg,#ffffff08,#ffffff03);border-radius:19px;padding:20px;transition:.2s}.mode-card:hover{border-color:#8e7aff80;transform:translateY(-2px)}.mode-card.selected{border-color:#9580ff;background:linear-gradient(110deg,#7b61ff25,#ffffff04);box-shadow:inset 0 0 0 1px #7b61ff35}.mode-icon{width:56px;height:56px;flex:0 0 auto;border-radius:16px;display:grid;place-items:center;font-size:28px;background:linear-gradient(145deg,#7c5cff35,#28d9ff16);border:1px solid #9d8aff2a}.mode-card strong{display:block;font-size:15px}.mode-card p{font-size:12px;color:var(--muted);line-height:1.5;margin:6px 0 0}.mode-radio{margin-left:auto;flex:0 0 17px;width:17px;height:17px;border:1px solid #71809e;border-radius:50%;display:grid;place-items:center}.mode-card.selected .mode-radio:after{content:"";width:9px;height:9px;border-radius:50%;background:#a99aff}
+.lobby{display:grid;grid-template-columns:1.05fr .95fr;gap:14px;margin-top:14px}.panel{background:var(--panel);border:1px solid var(--line);border-radius:20px;padding:22px;backdrop-filter:blur(16px);box-shadow:var(--shadow)}.panel h3{font:700 14px Orbitron,sans-serif;margin:0 0 6px}.panel .hint{color:var(--muted);font-size:12px;line-height:1.6;margin:0 0 19px}.field-label{display:block;color:#b7c1d8;font-size:11px;font-weight:700;margin:13px 0 8px}.input{width:100%;background:#060b15a8;border:1px solid #ffffff17;border-radius:12px;padding:13px 14px;color:var(--text);outline:none}.input::placeholder{color:#63708b}.input:focus{border-color:#8c79ff}.form-row{display:flex;gap:9px}.form-row .input{min-width:0}.full{width:100%;margin-top:12px}.divider-text{display:flex;align-items:center;gap:12px;color:#697793;font-size:10px;text-transform:uppercase;letter-spacing:1.5px;margin:16px 0}.divider-text:before,.divider-text:after{content:"";height:1px;flex:1;background:var(--line)}
+.lobby-note{display:flex;gap:12px;align-items:start;background:#7b65ff10;border:1px solid #7b65ff26;border-radius:13px;padding:13px;margin-top:16px;color:#b4bfe0;font-size:11px;line-height:1.6}.lobby-note span{font-size:17px}.player-list{display:grid;gap:9px;margin-top:13px}.player-slot{display:flex;align-items:center;gap:11px;padding:11px;border:1px solid #ffffff0d;border-radius:13px;background:#060b153d}.avatar{width:34px;height:34px;border-radius:11px;display:grid;place-items:center;font-size:16px;background:#7b61ff28;border:1px solid #9b88ff26}.player-meta{flex:1;min-width:0}.player-meta strong{display:block;font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.player-meta small{display:block;font-size:10px;color:var(--muted);margin-top:3px}.slot-state{font-size:10px;color:var(--muted)}.slot-state.online{color:var(--good)}
+.hidden{display:none!important}.game-view{margin-top:28px;animation:appear .4s ease}@keyframes appear{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}.game-head{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:15px}.game-head h2{font:700 clamp(18px,3vw,25px) Orbitron,sans-serif;margin:0}.game-head p{font-size:12px;color:var(--muted);margin:7px 0 0}.game-layout{display:grid;grid-template-columns:minmax(0,1fr) 290px;gap:15px;align-items:start}.board-panel{padding:15px;min-width:0}.board-wrap{width:100%;max-width:640px;margin:auto;aspect-ratio:1;display:grid;place-items:center;position:relative}.board{width:100%;height:100%;display:grid;grid-template-columns:repeat(10,1fr);grid-template-rows:repeat(10,1fr);gap:3px;padding:5px;border-radius:17px;background:#080e1a;border:1px solid #ffffff1c;box-shadow:inset 0 0 30px #0007}.tile{position:relative;display:flex;align-items:center;justify-content:center;flex-direction:column;border-radius:6px;background:linear-gradient(145deg,#24334a,#172338);border:1px solid #ffffff0a;color:#dce6ff;font-size:clamp(8px,1.5vw,13px);font-weight:800;overflow:hidden}.tile:nth-child(odd){background:linear-gradient(145deg,#1d2a40,#142034)}.tile small{position:absolute;left:3px;top:2px;font-size:clamp(6px,.8vw,9px);color:#95a6c6;font-weight:500}.tile.snake{background:linear-gradient(145deg,#5e263e,#351b32);border-color:#c44f83}.tile.ladder{background:linear-gradient(145deg,#23574c,#163a36);border-color:#3bba92}.tile.safe{outline:1px solid #8d79ff7a}.tile .tokens{display:flex;flex-wrap:wrap;gap:2px;justify-content:center;align-items:center}.mini-token{width:clamp(7px,1.4vw,13px);height:clamp(7px,1.4vw,13px);border-radius:50%;border:1px solid #ffffffb5;box-shadow:0 2px 4px #0008}.board-center{grid-column:4/8;grid-row:4/8;border:1px solid #8c7cff55;border-radius:12px;background:radial-gradient(circle,#27204d,#0c1325 72%);display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;z-index:1;box-shadow:0 0 28px #604eff20}.board-center .center-logo{font-size:clamp(22px,5vw,46px)}.board-center strong{font:700 clamp(8px,1.5vw,14px) Orbitron,sans-serif;letter-spacing:1px}.board-center span{font-size:clamp(6px,1vw,10px);color:var(--muted);margin-top:5px}
+.side-stack{display:grid;gap:13px}.turn-banner{padding:17px;border:1px solid #8874ff48;border-radius:17px;background:linear-gradient(140deg,#795fff24,#15223b);}.turn-banner small{font-size:10px;text-transform:uppercase;letter-spacing:1.7px;color:#b5aaff}.turn-player{display:flex;align-items:center;gap:10px;margin-top:12px}.turn-player strong{font-size:14px}.turn-player p{font-size:11px;color:var(--muted);margin:4px 0 0}.dice-area{display:flex;align-items:center;gap:15px;margin-top:17px}.dice{width:65px;height:65px;flex:0 0 auto;border-radius:15px;background:linear-gradient(145deg,#fff,#cbd5ee);box-shadow:0 9px 22px #0005,inset 0 2px 4px #fff;display:grid;grid-template-columns:repeat(3,1fr);padding:12px;gap:5px;transform:rotate(-4deg)}.dice .pip{background:#1a2340}.dice.rolling{animation:roll .6s ease}@keyframes roll{0%{transform:rotate(-4deg) scale(1)}35%{transform:rotate(90deg) scale(.8)}70%{transform:rotate(220deg) scale(1.1)}100%{transform:rotate(356deg) scale(1)}}.dice-copy{flex:1}.dice-copy strong{font:700 24px Orbitron,sans-serif;display:block}.dice-copy small{font-size:10px;color:var(--muted);line-height:1.5;display:block;margin-top:4px}.roll-btn{width:100%;margin-top:16px}.player-list.compact .player-slot{padding:9px}.player-list.compact .avatar{width:30px;height:30px}.log{max-height:135px;overflow:auto;display:grid;gap:9px}.log-item{font-size:11px;color:#aab6d0;line-height:1.5;padding-left:11px;border-left:2px solid #7662ff70}.log-item b{color:#f4f7ff}.game-actions{display:flex;gap:8px;flex-wrap:wrap}.game-actions .btn{font-size:11px;padding:10px 12px}
+.toast{position:fixed;bottom:24px;left:50%;transform:translate(-50%,20px);opacity:0;pointer-events:none;z-index:90;padding:13px 17px;background:#18233a;border:1px solid #697ca2;border-radius:13px;box-shadow:var(--shadow);font-size:12px;max-width:min(90vw,500px);transition:.25s}.toast.show{opacity:1;transform:translate(-50%,0)}.toast.error{border-color:#ff5877}.toast.success{border-color:#3ce7a4}
+.modal-backdrop{position:fixed;inset:0;background:#030611c9;backdrop-filter:blur(12px);display:grid;place-items:center;z-index:80;padding:20px}.modal{width:min(430px,100%);padding:25px;border:1px solid var(--line);border-radius:22px;background:#111a2e;box-shadow:var(--shadow)}.modal h3{font:700 18px Orbitron,sans-serif;margin:0 0 8px}.modal p{font-size:12px;line-height:1.65;color:var(--muted)}.modal-actions{display:flex;gap:9px;margin-top:20px}.modal-actions>*{flex:1}
+.footer{display:flex;justify-content:space-between;gap:14px;border-top:1px solid var(--line);padding-top:20px;margin-top:48px;color:#64718e;font-size:10px;letter-spacing:.5px}.footer b{color:#a0aaca}
+@media(max-width:950px){.world-grid{grid-template-columns:repeat(3,1fr)}.hero{gap:10px}.hero-art{transform:scale(.85)}.game-layout{grid-template-columns:minmax(0,1fr) 250px}}
+@media(max-width:700px){.topbar{height:65px;padding:0 16px}.brand-mark{width:37px;height:37px}.brand-name{font-size:15px}.brand-sub{font-size:8px}.status-pill{padding:8px;font-size:10px}.status-pill .status-extra{display:none}main{width:calc(100% - 28px);padding-top:23px}.hero{grid-template-columns:1fr;min-height:0;gap:0}.hero h1{font-size:clamp(38px,11vw,60px);margin:14px 0}.hero p{font-size:13px}.hero-art{height:190px;transform:scale(.7);margin-top:-4px;margin-bottom:0}.hero-stats{margin-top:20px}.section-head{margin-top:25px}.world-grid{grid-template-columns:repeat(2,1fr);gap:9px}.world{min-height:116px}.mode-grid{grid-template-columns:1fr;gap:9px}.mode-card{padding:15px}.lobby{grid-template-columns:1fr}.panel{padding:17px}.game-layout{grid-template-columns:1fr}.side-stack{grid-template-columns:1fr}.board-panel{padding:8px}.board{gap:2px;padding:3px}.tile{border-radius:4px}.game-head{align-items:flex-start}.game-head .btn{padding:10px;font-size:11px}.footer{flex-direction:column}.game-view{margin-top:23px}}
+@media(prefers-reduced-motion:reduce){*,*:before,*:after{animation-duration:.01ms!important;animation-iteration-count:1!important;scroll-behavior:auto!important;transition-duration:.01ms!important}}
 </style>
 </head>
+<body data-theme="neon">
+<div class="bgfx"></div>
+<header class="topbar">
+  <div class="brand"><div class="brand-mark">✦</div><div><div class="brand-name">LUDO<span>VERSE</span></div><div class="brand-sub">PLAY BEYOND WORLDS</div></div></div>
+  <div class="top-right"><div class="status-pill"><i class="dot" id="netDot"></i><span id="netStatus">ONLINE READY</span><span class="status-extra"> · WEBRTC</span></div><button class="icon-btn" id="soundToggle" aria-label="Toggle suara">♫</button></div>
+</header>
+<main>
+  <section class="hero">
+    <div>
+      <div class="eyebrow">THE MULTIVERSE BOARD GAME</div>
+      <h1>ROLL THE DICE.<br><span class="gradient">OWN YOUR</span><br>UNIVERSE.</h1>
+      <p>Masuk ke dunia permainan yang berbeda. Tantang teman, lempar dadu, dan buktikan siapa penguasa multiverse.</p>
+      <div class="hero-actions"><button class="btn btn-primary" id="scrollPlay">✦ &nbsp; Mulai Bermain</button><button class="btn btn-secondary" id="howBtn">Cara Bermain ↗</button></div>
+      <div class="hero-stats"><div class="stat"><strong>02</strong><span>GAME MODES</span></div><div class="stat"><strong>04</strong><span>PLAYERS / ROOM</span></div><div class="stat"><strong>06</strong><span>WORLDS</span></div></div>
+    </div>
+    <div class="hero-art" aria-hidden="true"><div class="orbit"></div><div class="orbit two"></div><div class="hero-die"><i class="pip"></i><i class="pip"></i><i class="pip"></i><i class="pip"></i><i class="pip"></i><i class="pip"></i><i class="pip"></i><i class="pip"></i><i class="pip"></i></div></div>
+  </section>
 
-<body>
-<div id="background"></div>
-<canvas id="particles"></canvas>
-
-<div id="app">
-  <section id="menu" class="screen">
-    <div class="menuCard">
-      <div class="brand">
-        <div class="brandSmall">ONLINE BOARD GAME · ADVENTURE · PARTY</div>
-        <div class="logo">LUDOVERSE</div>
-        <div class="description">
-          Satu papan, banyak dunia, satu petualangan bersama.
-          Buat room atau masukkan kode teman untuk bermain online hingga empat pemain.
+  <section id="playSetup">
+    <div class="section-head"><div><div class="section-title">01 / PILIH DUNIA</div><div class="section-desc">Setiap dunia punya atmosfer visualnya sendiri.</div></div><span class="tiny-label">6 WORLDS AVAILABLE</span></div>
+    <div class="world-grid" id="worldGrid">
+      <button class="world selected" data-world="neon" style="--world:#8064ff"><span class="check">✓</span><span class="world-icon">🌃</span><strong>Neon City</strong><small>Cyberpunk / Electric</small></button>
+      <button class="world" data-world="forest" style="--world:#3fce94"><span class="check">✓</span><span class="world-icon">🌿</span><strong>Enchanted Forest</strong><small>Nature / Mystic</small></button>
+      <button class="world" data-world="desert" style="--world:#f2a45a"><span class="check">✓</span><span class="world-icon">🏜️</span><strong>Desert Realm</strong><small>Dunes / Ancient</small></button>
+      <button class="world" data-world="ocean" style="--world:#31c6f3"><span class="check">✓</span><span class="world-icon">🌊</span><strong>Ocean Depths</strong><small>Abyss / Atlantis</small></button>
+      <button class="world" data-world="inferno" style="--world:#ff5c6c"><span class="check">✓</span><span class="world-icon">🌋</span><strong>Inferno</strong><small>Lava / Volcanic</small></button>
+      <button class="world" data-world="frost" style="--world:#8ddcff"><span class="check">✓</span><span class="world-icon">❄️</span><strong>Frozen Galaxy</strong><small>Ice / Cosmic</small></button>
+    </div>
+    <div class="section-head"><div><div class="section-title">02 / PILIH MODE</div><div class="section-desc">Pilih permainan dan mulai tantangan bersama teman.</div></div></div>
+    <div class="mode-grid">
+      <button class="mode-card selected" data-mode="snakes"><span class="mode-icon">🐍</span><span><strong>Ular Tangga</strong><p>Naiki tangga, hindari ular, dan jadilah yang pertama mencapai kotak 100.</p></span><span class="mode-radio"></span></button>
+      <button class="mode-card" data-mode="ludo"><span class="mode-icon">🎲</span><span><strong>Ludo</strong><p>Keluarkan pion, taklukkan papan, dan bawa seluruh pion ke garis finis.</p></span><span class="mode-radio"></span></button>
+    </div>
+    <div class="lobby">
+      <section class="panel">
+        <h3>CREATE A ROOM</h3><p class="hint">Jadilah host, bagikan kode room kepada teman, lalu mulai permainan saat pemain sudah siap.</p>
+        <label class="field-label" for="playerName">NAMA PEMAIN</label><input class="input" id="playerName" maxlength="18" placeholder="Masukkan nama kamu" autocomplete="nickname">
+        <button class="btn btn-primary full" id="createRoom">＋ &nbsp; Buat Room Baru</button>
+        <div class="divider-text">ATAU BERGABUNG</div>
+        <label class="field-label" for="roomCodeInput">KODE ROOM</label><div class="form-row"><input class="input" id="roomCodeInput" maxlength="6" placeholder="Contoh: 7K9P2A" autocapitalize="characters"><button class="btn btn-secondary" id="joinRoom">Gabung</button></div>
+        <div class="lobby-note"><span>✧</span><div>Room mendukung hingga <b>4 pemain</b>. Host mengontrol hasil dadu dan pergantian giliran untuk menjaga sinkronisasi permainan.</div></div>
+      </section>
+      <section class="panel">
+        <h3>ROOM LOBBY</h3><p class="hint" id="lobbyHint">Belum ada room aktif. Buat room baru atau masukkan kode dari teman.</p>
+        <div id="roomCodeArea" class="hidden"><div class="tiny-label">YOUR ROOM CODE</div><div style="display:flex;align-items:center;gap:10px;margin-top:8px"><div id="roomCodeDisplay" style="font:700 27px Orbitron,sans-serif;letter-spacing:5px;color:#b9aaff">------</div><button class="btn btn-secondary" id="copyCode" style="padding:8px 10px">Salin</button></div></div>
+        <div class="player-list" id="lobbyPlayers">
+          <div class="player-slot"><div class="avatar">✦</div><div class="player-meta"><strong>Menunggu pemain</strong><small>Buat atau gabung ke room</small></div><span class="slot-state">—</span></div>
+          <div class="player-slot"><div class="avatar">＋</div><div class="player-meta"><strong>Slot pemain 2</strong><small>Belum bergabung</small></div><span class="slot-state">EMPTY</span></div>
+          <div class="player-slot"><div class="avatar">＋</div><div class="player-meta"><strong>Slot pemain 3</strong><small>Belum bergabung</small></div><span class="slot-state">EMPTY</span></div>
+          <div class="player-slot"><div class="avatar">＋</div><div class="player-meta"><strong>Slot pemain 4</strong><small>Belum bergabung</small></div><span class="slot-state">EMPTY</span></div>
         </div>
-      </div>
-
-      <div class="sectionTitle">PILIH DUNIA</div>
-      <div class="worlds">
-        <div class="world active" data-world="neon"><div class="worldIcon">🌃</div><div class="worldName">Neon City</div><div class="worldDesc">Cyberpunk metropolis</div></div>
-        <div class="world" data-world="forest"><div class="worldIcon">🌲</div><div class="worldName">Mystic Forest</div><div class="worldDesc">Ancient magical woods</div></div>
-        <div class="world" data-world="desert"><div class="worldIcon">🏜️</div><div class="worldName">Lost Empire</div><div class="worldDesc">Desert ruins</div></div>
-        <div class="world" data-world="ocean"><div class="worldIcon">🌊</div><div class="worldName">Abyss</div><div class="worldDesc">Deep ocean kingdom</div></div>
-        <div class="world" data-world="inferno"><div class="worldIcon">🌋</div><div class="worldName">Inferno</div><div class="worldDesc">Volcanic battlefield</div></div>
-        <div class="world" data-world="frost"><div class="worldIcon">❄️</div><div class="worldName">Frost Kingdom</div><div class="worldDesc">Frozen royal realm</div></div>
-      </div>
-
-      <div class="onlineBox">
-        <div class="sectionTitle" style="margin-top:0">MULTIPLAYER ONLINE</div>
-        <div class="onlineGrid" style="margin-top:14px">
-          <div>
-            <label for="playerName">NAMA PEMAIN</label>
-            <input class="field" id="playerName" maxlength="16" placeholder="Nama kamu" value="Pemain">
-          </div>
-          <div>
-            <label for="roomInput">KODE ROOM TEMAN</label>
-            <input class="field" id="roomInput" maxlength="8" placeholder="Contoh: AB12CD" autocomplete="off">
-          </div>
-        </div>
-        <div class="actions">
-          <button class="btn btnPrimary" id="createRoom">BUAT ROOM</button>
-          <button class="btn" id="joinRoom">GABUNG ROOM</button>
-          <button class="btn" id="copyRoom" disabled>SALIN KODE</button>
-        </div>
-        <div id="roomDisplay">
-          <div style="font-size:10px;color:var(--muted);letter-spacing:2px">KODE ROOM</div>
-          <div class="roomCode" id="roomCode">------</div>
-        </div>
-        <div id="lobbyPlayers"></div>
-        <div id="connectionStatus" role="status">Siap membuat atau bergabung ke room.</div>
-        <button class="btn btnGold btnWide" id="startGame" disabled>MULAI PERMAINAN</button>
-      </div>
+        <button class="btn btn-primary full" id="startGame" disabled>Mulai Permainan · Minimal 2 Pemain</button>
+        <button class="btn btn-quiet full" id="leaveRoom" disabled>Keluar dari Room</button>
+      </section>
     </div>
   </section>
 
-  <section id="gameScreen" class="screen hidden">
-    <div id="topbar">
-      <div class="glass">
-        <div class="modeName" id="modeName">Neon City</div>
-        <div class="turnText" id="turnText">MENUNGGU PEMAIN</div>
-      </div>
-      <div class="glass">
-        <div class="modeName">LUDOVERSE</div>
-        <div class="turnText" id="gameRoomLabel">ROOM —</div>
-      </div>
+  <section id="gameView" class="game-view hidden">
+    <div class="game-head"><div><div class="eyebrow">LIVE MATCH / <span id="gameModeLabel">SNAKES & LADDERS</span></div><h2 id="gameTitle">Race to the top.</h2><p id="gameSub">Room — · Menunggu aksi pemain</p></div><button class="btn btn-secondary" id="backLobby">← Lobby</button></div>
+    <div class="game-layout">
+      <section class="panel board-panel"><div class="board-wrap"><div id="board" class="board"></div></div></section>
+      <aside class="side-stack">
+        <section class="turn-banner"><small id="turnCaption">GILIRAN PEMAIN</small><div class="turn-player"><div class="avatar" id="turnAvatar">🎲</div><div><strong id="turnName">Menunggu permainan</strong><p id="turnHint">Dadu siap dilempar</p></div></div><div class="dice-area"><div class="dice" id="dice"><i class="pip"></i><i class="pip"></i><i class="pip"></i><i class="pip"></i><i class="pip"></i><i class="pip"></i><i class="pip"></i><i class="pip"></i><i class="pip"></i></div><div class="dice-copy"><strong id="diceValue">—</strong><small id="diceHelp">Tekan tombol untuk melempar dadu.</small></div></div><button class="btn btn-primary roll-btn" id="rollDice" disabled>🎲 &nbsp; Lempar Dadu</button></section>
+        <section class="panel"><h3>PLAYERS</h3><div class="player-list compact" id="gamePlayers"></div></section>
+        <section class="panel"><h3>ACTIVITY FEED</h3><div class="log" id="activityLog"><div class="log-item">Room game akan muncul di sini.</div></div></section>
+        <div class="game-actions"><button class="btn btn-secondary" id="copyGameCode">Salin Kode Room</button><button class="btn btn-quiet" id="soundGameToggle">♫ Suara: Aktif</button></div>
+      </aside>
     </div>
-    <div id="boardWrap">
-      <div id="board"></div>
-      <div id="decor"></div>
-      <div id="pieces"></div>
-    </div>
-    <div id="players"></div>
-    <div id="toast"></div>
-    <div id="diceArea">
-      <div id="dice">🎲</div>
-      <button class="btn btnPrimary" id="roll" disabled>LEMPAR DADU</button>
-    </div>
-    <div id="networkBadge">Menghubungkan…</div>
   </section>
-
-  <div id="win" class="hidden">
-    <div class="winCard">
-      <div class="winTitle">VICTORY</div>
-      <div class="winText" id="winText">Pemain mencapai kotak terakhir.</div>
-      <button class="btn btnPrimary btnWide" id="backMenu">KEMBALI KE LOBBY</button>
-    </div>
-  </div>
-</div>
-
-<script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
+  <footer class="footer"><span>© 2026 <b>LUDOVERSE</b> · PLAY BEYOND WORLDS</span><span>BUILT FOR FRIENDS, POWERED BY PLAY.</span></footer>
+</main>
+<div class="toast" id="toast"></div>
+<div class="modal-backdrop hidden" id="modalBackdrop"><div class="modal"><h3 id="modalTitle">Cara Bermain</h3><div id="modalBody"></div><div class="modal-actions"><button class="btn btn-secondary" id="modalClose">Tutup</button><button class="btn btn-primary" id="modalConfirm">Mengerti</button></div></div></div>
 <script>
-```javascript
-"use strict";
-
-/* ==========================================
-   LUDOVERSE — MULTIPLAYER ENGINE
-   Host-authoritative state synchronization
-   Maximum 4 players per room
-========================================== */
-
+(() => {
+'use strict';
 const $ = id => document.getElementById(id);
-
-const worlds = {
-  neon: {
-    name: "Neon City",
-    bg1: "#080b19", bg2: "#171126",
-    glow: "rgba(0,245,255,.15)",
-    accent: "#00f5ff", accent2: "#ff2bd6",
-    snake: "🐍", ladder: "⚡"
-  },
-  forest: {
-    name: "Mystic Forest",
-    bg1: "#03120c", bg2: "#081e18",
-    glow: "rgba(80,255,150,.16)",
-    accent: "#55ff9a", accent2: "#b8ff52",
-    snake: "🐉", ladder: "🌿"
-  },
-  desert: {
-    name: "Lost Empire",
-    bg1: "#1b0c04", bg2: "#38200a",
-    glow: "rgba(255,178,70,.18)",
-    accent: "#ffb347", accent2: "#ffe27a",
-    snake: "🐍", ladder: "🏺"
-  },
-  ocean: {
-    name: "Abyss",
-    bg1: "#021019", bg2: "#032d40",
-    glow: "rgba(0,210,255,.2)",
-    accent: "#00d9ff", accent2: "#65fff0",
-    snake: "🐙", ladder: "🪸"
-  },
-  inferno: {
-    name: "Inferno",
-    bg1: "#160303", bg2: "#3b0805",
-    glow: "rgba(255,65,20,.22)",
-    accent: "#ff4b21", accent2: "#ffce3a",
-    snake: "🐍", ladder: "🔥"
-  },
-  frost: {
-    name: "Frost Kingdom",
-    bg1: "#030b17", bg2: "#0a1d36",
-    glow: "rgba(100,210,255,.2)",
-    accent: "#70dfff", accent2: "#d8ffff",
-    snake: "🐲", ladder: "❄️"
-  }
-};
-
-const maps = {
-  neon: {
-    ladders: {3:22,14:36,29:57,48:79,65:90},
-    snakes: {27:9,44:18,53:31,76:46,97:72}
-  },
-  forest: {
-    ladders: {5:25,18:39,33:58,47:74,61:88},
-    snakes: {30:12,42:20,55:37,83:51,95:68}
-  },
-  desert: {
-    ladders: {7:28,21:43,35:62,50:76,69:92},
-    snakes: {32:11,46:24,59:34,81:54,99:70}
-  },
-  ocean: {
-    ladders: {4:19,17:41,31:55,49:72,64:87},
-    snakes: {26:8,45:23,58:40,78:52,96:71}
-  },
-  inferno: {
-    ladders: {2:21,16:38,28:52,43:70,60:84},
-    snakes: {25:7,41:15,57:35,74:49,98:63}
-  },
-  frost: {
-    ladders: {6:26,19:44,34:59,52:78,67:91},
-    snakes: {24:10,39:21,56:32,80:48,94:69}
-  }
-};
-
-const colors = ["#00d9ff", "#ff4bd8", "#8dff68", "#ffc36b"];
-
-let selectedWorld = "neon";
-let peer = null;
-let hostPeerId = null;
-let myPeerId = null;
-let roomCode = "";
-let isHost = false;
-let online = false;
-let gameStarted = false;
-let hostBusy = false;
-let state = null;
-let connections = new Map();
-let reconnecting = false;
-let toastTimer = null;
-
-const diceFaces = ["", "⚀", "⚁", "⚂", "⚃", "⚄", "⚅"];
-
-/* ==========================================
-   WORLD SELECTION
-========================================== */
-
-document.querySelectorAll(".world").forEach(card => {
-  card.addEventListener("click", () => {
-    document.querySelectorAll(".world").forEach(el => {
-      el.classList.remove("active");
-    });
-
-    card.classList.add("active");
-    selectedWorld = card.dataset.world;
-    applyWorld();
-  });
-});
-
-function applyWorld() {
-  const w = worlds[selectedWorld];
-  const root = document.documentElement;
-
-  root.style.setProperty("--bg1", w.bg1);
-  root.style.setProperty("--bg2", w.bg2);
-  root.style.setProperty("--glow", w.glow);
-  root.style.setProperty("--accent", w.accent);
-  root.style.setProperty("--accent2", w.accent2);
-
-  $("background").style.background =
-    `radial-gradient(ellipse at 50% 15%,${w.glow},transparent 55%),linear-gradient(135deg,${w.bg1},${w.bg2})`;
+const COLORS = ['#ff657a','#4ecbff','#ffd166','#70e1a1'];
+const EMOJIS = ['🔴','🔵','🟡','🟢'];
+const WORLD_NAMES = {neon:'Neon City',forest:'Enchanted Forest',desert:'Desert Realm',ocean:'Ocean Depths',inferno:'Inferno',frost:'Frozen Galaxy'};
+const SNAKES = {16:6,47:26,49:11,56:53,62:19,64:60,87:24,93:73,95:75,98:78};
+const LADDERS = {2:38,7:14,8:31,15:26,21:42,28:84,36:44,51:67,71:91,78:98,80:100};
+let world='neon', mode='snakes', peer=null, hostConn=null, connections=new Map(), isHost=false, localId='', roomCode='', state=null, soundOn=true, audioCtx=null, pendingConnectTimer=null, isRolling=false, lastToastTimer=null;
+const peerPrefix='lvx-';
+function toast(msg,type=''){const el=$('toast');el.textContent=msg;el.className='toast show '+type;clearTimeout(lastToastTimer);lastToastTimer=setTimeout(()=>el.className='toast',3300)}
+function setNet(text,good=true){$('netStatus').textContent=text;$('netDot').style.background=good?'var(--good)':'var(--danger)';$('netDot').style.boxShadow=good?'0 0 12px var(--good)':'0 0 12px var(--danger)'}
+function playTone(freq=440,duration=.08,type='sine'){if(!soundOn)return;try{audioCtx=audioCtx||new(window.AudioContext||window.webkitAudioContext)();const o=audioCtx.createOscillator(),g=audioCtx.createGain();o.type=type;o.frequency.value=freq;g.gain.setValueAtTime(.045,audioCtx.currentTime);g.gain.exponentialRampToValueAtTime(.001,audioCtx.currentTime+duration);o.connect(g);g.connect(audioCtx.destination);o.start();o.stop(audioCtx.currentTime+duration)}catch(e){}}
+function escapeHtml(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function playerName(){return ($('playerName').value.trim()||'Player').slice(0,18)}
+function randomCode(){const chars='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';let s='';for(let i=0;i<6;i++)s+=chars[Math.floor(Math.random()*chars.length)];return s}
+function makePeerId(code){return peerPrefix+code.toLowerCase()}
+function closePeer(){clearTimeout(pendingConnectTimer);if(peer){try{peer.destroy()}catch(e){}}peer=null;hostConn=null;connections.clear();isHost=false;localId='';roomCode='';state=null}
+function setWorld(w,notify=true){if(!WORLD_NAMES[w])return;world=w;document.body.dataset.theme=w;document.querySelectorAll('.world').forEach(b=>b.classList.toggle('selected',b.dataset.world===w));playTone(560,.05);if(notify)toast(WORLD_NAMES[w]+' dipilih','success')}
+function setMode(m,notify=true){if(!['snakes','ludo'].includes(m))return;mode=m;document.querySelectorAll('.mode-card').forEach(b=>b.classList.toggle('selected',b.dataset.mode===m));if(notify)toast(m==='ludo'?'Mode Ludo dipilih':'Mode Ular Tangga dipilih','success')}
+document.querySelectorAll('.world').forEach(b=>b.addEventListener('click',()=>setWorld(b.dataset.world)));
+document.querySelectorAll('.mode-card').forEach(b=>b.addEventListener('click',()=>setMode(b.dataset.mode)));
+$('scrollPlay').onclick=()=>$('playSetup').scrollIntoView({behavior:'smooth'});
+function openModal(title,body,confirmText='Mengerti'){ $('modalTitle').textContent=title;$('modalBody').innerHTML=body;$('modalConfirm').textContent=confirmText;$('modalBackdrop').classList.remove('hidden')}
+function closeModal(){$('modalBackdrop').classList.add('hidden')}
+$('modalClose').onclick=closeModal;$('modalConfirm').onclick=closeModal;$('modalBackdrop').addEventListener('click',e=>{if(e.target===$('modalBackdrop'))closeModal()});
+$('howBtn').onclick=()=>openModal('Cara Bermain',`<p><b>1. Pilih dunia dan mode.</b> Tema dan mode dipilih sebelum membuat atau bergabung room.</p><p><b>2. Buat / gabung room.</b> Host membagikan kode 6 karakter. Semua pemain harus memakai kode yang sama.</p><p><b>3. Mulai.</b> Host memulai setelah minimal 2 pemain bergabung (maksimal 4).</p><p><b>Ular Tangga:</b> lempar dadu, naik tangga dan hindari ular. Harus mencapai kotak 100 dengan angka yang tepat.</p><p><b>Ludo:</b> lempar 6 untuk mengeluarkan pion. Pilih pion yang ingin dijalankan; mendarat di pion lawan akan mengirimnya kembali ke markas. Bawa keempat pion ke rumah untuk menang.</p><p>Game ini menggunakan koneksi WebRTC melalui layanan PeerJS publik. Jika koneksi gagal, coba refresh dan buat room baru.</p>`);
+$('soundToggle').onclick=toggleSound;$('soundGameToggle').onclick=toggleSound;
+function toggleSound(){soundOn=!soundOn;$('soundToggle').textContent=soundOn?'♫':'♩';$('soundGameToggle').textContent='♫ Suara: '+(soundOn?'Aktif':'Nonaktif');if(soundOn)playTone(650,.06);toast('Efek suara '+(soundOn?'aktif':'nonaktif'))}
+function makeBaseState(code,host){return {v:1,roomCode:code,mode,world,started:false,turn:0,players:[{id:host.id,name:host.name,color:0,position:0,pawns:[-1,-1,-1,-1],connected:true}],winner:null,lastRoll:null,log:[`${host.name} membuat room ${code}.`],updated:Date.now()}}
+function addLog(msg){if(!state)return;state.log.unshift(msg);state.log=state.log.slice(0,8)}
+function snapshot(){return JSON.parse(JSON.stringify(state))}
+function broadcast(type='state'){if(!isHost||!state)return;const packet={type,state:snapshot()};for(const [id,conn] of connections){if(conn&&conn.open){try{conn.send(packet)}catch(e){}}}renderAll()}
+function connectEvents(conn,asHost=false){conn.on('open',()=>{clearTimeout(pendingConnectTimer);if(asHost){connections.set(conn.peer,conn)}else{hostConn=conn;setNet('ROOM CONNECTED',true);toast('Berhasil terhubung ke room','success')}})
+conn.on('data',packet=>{if(asHost){handleHostPacket(conn,packet)}else{handleGuestPacket(packet)}})
+conn.on('close',()=>{if(asHost){connections.delete(conn.peer);const p=state?.players.find(x=>x.id===conn.peer);if(p){p.connected=false;addLog(`${p.name} terputus dari room.`);broadcast()}}else{hostConn=null;setNet('CONNECTION LOST',false);toast('Koneksi ke host terputus. Coba bergabung kembali.','error')}})
+conn.on('error',err=>{console.warn('Connection error',err);if(!asHost){setNet('CONNECTION ERROR',false);toast('Koneksi gagal. Periksa kode room dan jaringan.','error')}})}
+function handleHostPacket(conn,p){if(!p||typeof p!=='object')return;if(p.type==='join'){if(!state||state.started){conn.send({type:'reject',message:'Permainan sudah dimulai. Host tidak menerima pemain baru.'});return}if(state.players.some(x=>x.id===conn.peer)){conn.send({type:'welcome',you:conn.peer,state:snapshot()});return}if(state.players.length>=4){conn.send({type:'reject',message:'Room sudah penuh (maksimal 4 pemain).'});return}const nm=String(p.name||'Player').replace(/[<>]/g,'').slice(0,18)||'Player';const player={id:conn.peer,name:nm,color:state.players.length,position:0,pawns:[-1,-1,-1,-1],connected:true};state.players.push(player);connections.set(conn.peer,conn);addLog(`${nm} bergabung ke room.`);conn.send({type:'welcome',you:conn.peer,state:snapshot()});broadcast();return}if(!state)return;
+if(p.type==='choose'&&state.started&&!state.winner&&state.players[state.turn]?.id===conn.peer&&state.mode==='ludo'){performLudoMove(conn.peer,Number(p.pawn));return}
+if(p.type==='roll'&&state.started&&!state.winner&&state.players[state.turn]?.id===conn.peer){hostRoll(conn.peer);return}
 }
-
-function setStatus(message) {
-  $("connectionStatus").textContent = message;
+function handleGuestPacket(packet){if(!packet||typeof packet!=='object')return;if(packet.type==='reject'){toast(packet.message||'Tidak dapat bergabung.','error');leaveRoom(false);return}if(packet.type==='welcome'){localId=packet.you;state=packet.state;isHost=false;renderAll();return}if(packet.type==='state'&&packet.state){state=packet.state;renderAll()}}
+function createRoom(){if(!window.Peer){toast('Library PeerJS gagal dimuat. Periksa koneksi internet lalu refresh.','error');return}if(peer){toast('Keluar dari room aktif terlebih dahulu.','error');return}const code=randomCode();roomCode=code;isHost=true;localId='';setNet('CREATING ROOM',false);$('createRoom').disabled=true;$('createRoom').textContent='Membuat room…';const id=makePeerId(code);try{peer=new Peer(id,{debug:1,config:{iceServers:[{urls:'stun:stun.l.google.com:19302'},{urls:'stun:stun1.l.google.com:19302'}]}})}catch(e){resetCreate();toast('Gagal memulai koneksi PeerJS.','error');return}
+pendingConnectTimer=setTimeout(()=>{if(peer&&!state){toast('Pembuatan room terlalu lama. Coba lagi atau refresh halaman.','error');closePeer();resetCreate();setNet('ONLINE READY',false)}},12000);
+peer.on('open',id=>{clearTimeout(pendingConnectTimer);const host={id,name:playerName()};localId=id;state=makeBaseState(code,host);$('roomCodeInput').value=code;setNet('ROOM HOSTING',true);resetCreate();toast('Room berhasil dibuat: '+code,'success');renderAll()});
+peer.on('connection',conn=>{connectEvents(conn,true);});
+peer.on('error',err=>{console.error(err);clearTimeout(pendingConnectTimer);let msg='Tidak dapat membuat room.';if(err.type==='unavailable-id')msg='Kode room bentrok. Silakan coba buat room lagi.';else if(err.type==='server-error'||err.type==='socket-error')msg='Layanan signaling tidak tersedia sementara. Coba lagi beberapa saat.';else if(err.type==='network')msg='Tidak ada koneksi ke layanan PeerJS. Periksa internet.';else msg+=' ('+err.type+')';toast(msg,'error');closePeer();resetCreate();setNet('ONLINE READY',false)});
 }
-
-function setNetwork(message) {
-  $("networkBadge").textContent = message;
+function resetCreate(){$('createRoom').disabled=false;$('createRoom').textContent='＋  Buat Room Baru'}
+function joinRoom(){if(!window.Peer){toast('Library PeerJS gagal dimuat. Periksa internet.','error');return}if(peer){toast('Keluar dari room aktif terlebih dahulu.','error');return}const code=$('roomCodeInput').value.trim().toUpperCase();if(!/^[A-HJ-NP-Z2-9]{6}$/.test(code)){toast('Masukkan kode room 6 karakter yang valid.','error');return}roomCode=code;setNet('CONNECTING…',false);$('joinRoom').disabled=true;$('joinRoom').textContent='Menghubungkan…';try{peer=new Peer(undefined,{debug:1,config:{iceServers:[{urls:'stun:stun.l.google.com:19302'},{urls:'stun:stun1.l.google.com:19302'}]}})}catch(e){resetJoin();toast('Gagal memulai PeerJS.','error');return}
+let joined=false;pendingConnectTimer=setTimeout(()=>{if(!joined){toast('Host tidak merespons. Pastikan room aktif dan kode benar.','error');closePeer();resetJoin();setNet('ONLINE READY',false)}},12000);
+peer.on('open',id=>{localId=id;const conn=peer.connect(makePeerId(code),{reliable:true,serialization:'json'});hostConn=conn;conn.on('open',()=>{joined=true;conn.send({type:'join',name:playerName()});connectEvents(conn,false)});conn.on('error',err=>{console.error(err);if(!joined){toast('Tidak dapat tersambung ke host. Periksa kode room.','error');closePeer();resetJoin();setNet('ONLINE READY',false)}});});
+peer.on('error',err=>{console.error(err);if(!joined){clearTimeout(pendingConnectTimer);toast('Koneksi PeerJS gagal ('+err.type+'). Coba lagi.','error');closePeer();resetJoin();setNet('ONLINE READY',false)}});
 }
-
-function normalizeCode(value) {
-  return value.toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 6);
-}
-
-function makeRoomCode() {
-  const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
-  let code = "";
-
-  for (let i = 0; i < 6; i++) {
-    code += chars[Math.floor(Math.random() * chars.length)];
-  }
-
-  return code;
-}
-
-function cleanName() {
-  const name = $("playerName").value.trim().slice(0, 16);
-  return name || "Pemain";
-}
-
-function resetNetwork() {
-  if (peer) {
-    try { peer.destroy(); } catch (_) {}
-  }
-
-  peer = null;
-  hostPeerId = null;
-  myPeerId = null;
-  roomCode = "";
-  isHost = false;
-  online = false;
-  gameStarted = false;
-  hostBusy = false;
-  state = null;
-  connections.clear();
-  reconnecting = false;
-
-  $("startGame").disabled = true;
-  $("copyRoom").disabled = true;
-  $("roomDisplay").style.display = "none";
-  $("lobbyPlayers").textContent = "";
-}
-
-/* ==========================================
-   CREATE ROOM — HOST
-========================================== */
-
-$("createRoom").addEventListener("click", createRoom);
-
-function createRoom() {
-  if (typeof Peer === "undefined") {
-    setStatus("PeerJS gagal dimuat. Periksa internet atau pemblokir script, lalu muat ulang halaman.");
-    return;
-  }
-
-  resetNetwork();
-  setStatus("Menghubungkan ke layanan PeerJS…");
-  $("createRoom").disabled = true;
-  $("joinRoom").disabled = true;
-
-  roomCode = makeRoomCode();
-  const requestedId = "ludoverse-" + roomCode.toLowerCase();
-
-  try {
-    peer = new Peer(requestedId);
-  } catch (err) {
-    finishConnectButtons();
-    setStatus("Gagal membuat koneksi: " + err.message);
-    return;
-  }
-
-  peer.on("open", id => {
-    myPeerId = id;
-    hostPeerId = id;
-    isHost = true;
-    online = true;
-
-    state = {
-      roomCode,
-      world: selectedWorld,
-      started: false,
-      turn: 0,
-      lastRoll: null,
-      winner: null,
-      busy: false,
-      players: [{
-        peerId: myPeerId,
-        name: cleanName(),
-        color: colors[0],
-        pos: 1
-      }]
-    };
-
-    $("roomCode").textContent = roomCode;
-    $("roomDisplay").style.display = "block";
-    $("copyRoom").disabled = false;
-
-    setStatus("Room berhasil dibuat. Bagikan kode kepada teman.");
-    setNetwork("HOST · ROOM " + roomCode);
-    renderLobby();
-    updateStartButton();
-
-    finishConnectButtons();
-  });
-
-  peer.on("connection", conn => {
-    conn.on("open", () => {
-      conn.on("data", data => handleHostMessage(conn, data));
-      conn.on("close", () => handleDisconnect(conn));
-      conn.on("error", () => handleDisconnect(conn));
-    });
-  });
-
-  peer.on("error", err => {
-    console.error("PeerJS host error:", err);
-
-    if (err.type === "unavailable-id") {
-      setStatus("Kode room bentrok. Coba buat room baru.");
-    } else if (err.type === "network") {
-      setStatus("Jaringan PeerJS terputus. Periksa internet.");
-    } else {
-      setStatus("Koneksi gagal: " + (err.message || err.type));
-    }
-
-    finishConnectButtons();
-  });
-
-  peer.on("disconnected", () => {
-    setNetwork("KONEKSI TERPUTUS");
-    if (peer && !peer.destroyed) {
-      peer.reconnect();
-    }
-  });
-}
-
-function finishConnectButtons() {
-  $("createRoom").disabled = false;
-  $("joinRoom").disabled = false;
-}
-
-/* ==========================================
-   JOIN ROOM — GUEST
-========================================== */
-
-$("joinRoom").addEventListener("click", joinRoom);
-
-function joinRoom() {
-  if (typeof Peer === "undefined") {
-    setStatus("PeerJS gagal dimuat. Periksa internet atau muat ulang halaman.");
-    return;
-  }
-
-  const code = normalizeCode($("roomInput").value);
-
-  if (code.length !== 6) {
-    setStatus("Masukkan kode room enam karakter.");
-    return;
-  }
-
-  resetNetwork();
-
-  roomCode = code;
-  hostPeerId = "ludoverse-" + code.toLowerCase();
-
-  $("createRoom").disabled = true;
-  $("joinRoom").disabled = true;
-  setStatus("Mencari room " + code + "…");
-
-  try {
-    peer = new Peer();
-  } catch (err) {
-    finishConnectButtons();
-    setStatus("Gagal memulai koneksi: " + err.message);
-    return;
-  }
-
-  peer.on("open", id => {
-    myPeerId = id;
-    isHost = false;
-
-    const conn = peer.connect(hostPeerId, {
-      reliable: true,
-      serialization: "json"
-    });
-
-    let joined = false;
-
-    conn.on("open", () => {
-      joined = true;
-      online = true;
-
-      connections.set(hostPeerId, conn);
-      conn.on("data", data => handleGuestMessage(data));
-      conn.on("close", () => {
-        online = false;
-        setStatus("Koneksi ke host terputus. Room mungkin sudah ditutup.");
-        setNetwork("TERPUTUS DARI HOST");
-        $("roll").disabled = true;
-      });
-
-      conn.send({
-        type: "hello",
-        name: cleanName(),
-        peerId: myPeerId
-      });
-
-      setStatus("Terhubung. Menunggu informasi lobby…");
-      setNetwork("TERHUBUNG · ROOM " + roomCode);
-      finishConnectButtons();
-    });
-
-    conn.on("error", err => {
-      console.error("PeerJS guest connection:", err);
-      if (!joined) {
-        setStatus("Tidak dapat masuk room. Pastikan kode benar dan host masih online.");
-        finishConnectButtons();
-      }
-    });
-
-    setTimeout(() => {
-      if (!joined && !gameStarted) {
-        setStatus("Belum ada respons dari host. Pastikan host sudah membuat room.");
-        finishConnectButtons();
-      }
-    }, 12000);
-  });
-
-  peer.on("error", err => {
-    console.error("PeerJS guest error:", err);
-    setStatus("Koneksi gagal: " + (err.message || err.type));
-    finishConnectButtons();
-  });
-
-  peer.on("disconnected", () => {
-    setNetwork("KONEKSI TERPUTUS");
-    if (peer && !peer.destroyed) peer.reconnect();
-  });
-}
-
-/* ==========================================
-   HOST MESSAGE HANDLER
-========================================== */
-
-function handleHostMessage(conn, data) {
-  if (!isHost || !state || !data || typeof data.type !== "string") return;
-
-  if (data.type === "hello") {
-    if (state.started) {
-      conn.send({ type: "reject", reason: "Permainan sudah dimulai." });
-      conn.close();
-      return;
-    }
-
-    if (state.players.length >= 4) {
-      conn.send({ type: "reject", reason: "Room sudah penuh (maksimal 4 pemain)." });
-      conn.close();
-      return;
-    }
-
-    if (state.players.some(p => p.peerId === conn.peer)) return;
-
-    const player = {
-      peerId: conn.peer,
-      name: safePlayerName(data.name),
-      color: colors[state.players.length],
-      pos: 1
-    };
-
-    connections.set(conn.peer, conn);
-    state.players.push(player);
-
-    conn.send({ type: "welcome", myPeerId: conn.peer, roomCode });
-    broadcastLobby();
-    return;
-  }
-
-  if (data.type === "action") {
-    if (!state.started || hostBusy || state.winner !== null) return;
-
-    const playerIndex = state.players.findIndex(p => p.peerId === conn.peer);
-    if (playerIndex < 0 || playerIndex !== state.turn) return;
-
-    if (data.action === "roll") {
-      hostRoll(playerIndex);
-    }
-  }
-}
-
-function safePlayerName(value) {
-  if (typeof value !== "string") return "Pemain";
-  return value.trim().replace(/[<>]/g, "").slice(0, 16) || "Pemain";
-}
-
-function handleDisconnect(conn) {
-  if (!isHost || !state) return;
-
-  const id = conn.peer;
-  connections.delete(id);
-
-  const index = state.players.findIndex(p => p.peerId === id);
-  if (index < 0) return;
-
-  const wasCurrent = index === state.turn;
-
-  state.players.splice(index, 1);
-
-  if (state.turn > index) state.turn--;
-  if (state.turn >= state.players.length) state.turn = 0;
-
-  if (state.players.length === 0) {
-    setStatus("Semua pemain keluar. Buat room baru untuk bermain.");
-    return;
-  }
-
-  if (state.started && wasCurrent && !hostBusy) {
-    advanceTurn(false);
-  }
-
-  broadcastState();
-  renderLobby();
-}
-
-/* ==========================================
-   LOBBY SYNC
-========================================== */
-
-function broadcastLobby() {
-  if (!isHost || !state) return;
-
-  const packet = {
-    type: "lobby",
-    roomCode,
-    world: selectedWorld,
-    players: state.players.map(p => ({
-      peerId: p.peerId,
-      name: p.name,
-      color: p.color,
-      pos: p.pos
-    }))
-  };
-
-  for (const conn of connections.values()) {
-    if (conn.open) conn.send(packet);
-  }
-
-  renderLobby();
-  updateStartButton();
-}
-
-function renderLobby() {
-  if (!state) return;
-
-  $("lobbyPlayers").textContent =
-    "Pemain (" + state.players.length + "/4): " +
-    state.players.map(p => p.name).join(" · ");
-
-  updateStartButton();
-}
-
-function updateStartButton() {
-  $("startGame").disabled = !(isHost && online && state && !state.started);
-}
-
-function handleGuestMessage(data) {
-  if (!data || typeof data.type !== "string") return;
-
-  if (data.type === "reject") {
-    setStatus(data.reason || "Tidak dapat masuk room.");
-    online = false;
-    $("roll").disabled = true;
-    return;
-  }
-
-  if (data.type === "welcome") {
-    myPeerId = data.myPeerId || myPeerId;
-    setStatus("Berhasil bergabung ke room " + roomCode + ".");
-    return;
-  }
-
-  if (data.type === "lobby") {
-    roomCode = data.roomCode;
-    selectedWorld = data.world || selectedWorld;
-    state = {
-      roomCode,
-      world: selectedWorld,
-      started: false,
-      turn: 0,
-      winner: null,
-      busy: false,
-      players: data.players
-    };
-
-    applyWorld();
-    $("roomCode").textContent = roomCode;
-    $("roomDisplay").style.display = "block";
-    $("lobbyPlayers").textContent =
-      "Pemain (" + data.players.length + "/4): " +
-      data.players.map(p => p.name).join(" · ");
-
-    $("startGame").disabled = true;
-    return;
-  }
-
-  if (data.type === "state") {
-    state = data.state;
-    selectedWorld = state.world || selectedWorld;
-    gameStarted = state.started;
-
-    applyWorld();
-    syncGameUI();
-  }
-}
-
-/* ==========================================
-   START GAME
-========================================== */
-
-$("startGame").addEventListener("click", () => {
-  if (!isHost || !state || state.started || !online) return;
-
-  if (state.players.length < 1 || state.players.length > 4) return;
-
-  selectedWorld = selectedWorld || "neon";
-  state.world = selectedWorld;
-  state.started = true;
-  state.turn = 0;
-  state.lastRoll = null;
-  state.winner = null;
-  state.busy = false;
-  state.players.forEach(p => p.pos = 1);
-
-  gameStarted = true;
-
-  $("menu").classList.add("hidden");
-  $("gameScreen").classList.remove("hidden");
-  $("win").classList.add("hidden");
-
-  createBoard();
-  createDecor();
-  broadcastState();
-  showToast("LET THE GAME BEGIN", worlds[selectedWorld].accent);
-  playTone(520, .12);
-});
-
-function showGameScreen() {
-  $("menu").classList.add("hidden");
-  $("gameScreen").classList.remove("hidden");
-  $("win").classList.add("hidden");
-
-  createBoard();
-  createDecor();
-}
-
-/* ==========================================
-   AUTHORITATIVE GAME STATE
-========================================== */
-
-function getSnapshot() {
-  return JSON.parse(JSON.stringify(state));
-}
-
-function broadcastState() {
-  if (!isHost || !state) return;
-
-  const packet = {
-    type: "state",
-    state: getSnapshot()
-  };
-
-  for (const conn of connections.values()) {
-    if (conn.open) {
-      try { conn.send(packet); } catch (err) {
-        console.warn("State send failed:", err);
-      }
-    }
-  }
-
-  syncGameUI();
-}
-
-function syncGameUI() {
-  if (!state) return;
-
-  selectedWorld = state.world || selectedWorld;
-  gameStarted = state.started;
-  applyWorld();
-
-  if (!state.started) {
-    $("menu").classList.remove("hidden");
-    $("gameScreen").classList.add("hidden");
-    renderLobby();
-    return;
-  }
-
-  showGameScreen();
-
-  $("modeName").textContent = worlds[selectedWorld].name;
-  $("gameRoomLabel").textContent = "ROOM " + state.roomCode;
-
-  const current = state.players[state.turn];
-  $("turnText").textContent = state.winner !== null
-    ? "PERMAINAN SELESAI"
-    : current
-      ? (current.peerId === myPeerId ? "GILIRAN KAMU" : "GILIRAN " + current.name.toUpperCase())
-      : "MENUNGGU PEMAIN";
-
-  $("networkBadge").textContent =
-    (isHost ? "HOST" : "ONLINE") + " · " +
-    state.players.length + "/4 PEMAIN · " + state.roomCode;
-
-  renderPlayers();
-  updatePieces();
-
-  const isMyTurn = current && current.peerId === myPeerId;
-  $("roll").disabled = !online || !isMyTurn || state.busy || state.winner !== null;
-  $("roll").textContent = state.busy ? "MEMPROSES…" : "LEMPAR DADU";
-
-  if (state.winner !== null) {
-    $("winText").textContent =
-      state.players[state.winner]?.name + " mencapai kotak 100!";
-    $("win").classList.remove("hidden");
-  } else {
-    $("win").classList.add("hidden");
-  }
-}
-
-/* ==========================================
-   BOARD
-========================================== */
-
-function cellPosition(number) {
-  const n = number - 1;
-  const row = Math.floor(n / 10);
-  let col = n % 10;
-
-  if (row % 2 === 1) col = 9 - col;
-
-  return {
-    x: (col + .5) * 10,
-    y: (9 - row + .5) * 10
-  };
-}
-
-function createBoard() {
-  const board = $("board");
-  board.innerHTML = "";
-
-  for (let displayRow = 0; displayRow < 10; displayRow++) {
-    const row = 9 - displayRow;
-    const leftToRight = row % 2 === 0;
-
-    for (let col = 0; col < 10; col++) {
-      const number = row * 10 + (leftToRight ? col : 9 - col) + 1;
-      const cell = document.createElement("div");
-      cell.className = "cell";
-
-      if (maps[selectedWorld].ladders[number] ||
-          maps[selectedWorld].snakes[number]) {
-        cell.classList.add("special");
-      }
-
-      const label = document.createElement("div");
-      label.className = "cellNumber";
-      label.textContent = number;
-      cell.appendChild(label);
-      board.appendChild(cell);
-    }
-  }
-}
-
-function createDecor() {
-  const decor = $("decor");
-  decor.innerHTML = "";
-
-  const map = maps[selectedWorld];
-
-  for (const [from, to] of Object.entries(map.ladders)) {
-    addRoute(Number(from), Number(to), "ladder");
-  }
-
-  for (const [from, to] of Object.entries(map.snakes)) {
-    addRoute(Number(from), Number(to), "snake");
-  }
-}
-
-function addRoute(from, to, type) {
-  const a = cellPosition(from);
-  const b = cellPosition(to);
-
-  const x1 = a.x / 100 * $("boardWrap").clientWidth;
-  const y1 = a.y / 100 * $("boardWrap").clientHeight;
-  const x2 = b.x / 100 * $("boardWrap").clientWidth;
-  const y2 = b.y / 100 * $("boardWrap").clientHeight;
-
-  const dx = x2 - x1;
-  const dy = y2 - y1;
-  const length = Math.hypot(dx, dy);
-  const angle = Math.atan2(dy, dx);
-
-  const el = document.createElement("div");
-  el.className = "route " + type;
-  el.textContent = type === "ladder"
-    ? worlds[selectedWorld].ladder
-    : worlds[selectedWorld].snake;
-
-  el.style.left = a.x + "%";
-  el.style.top = a.y + "%";
-  el.style.width = length + "px";
-  el.style.height = "auto";
-  el.style.transform = `translate(-50%,-50%) rotate(${angle}rad)`;
-  el.style.transformOrigin = "center center";
-  el.style.color = type === "ladder"
-    ? worlds[selectedWorld].accent
-    : worlds[selectedWorld].accent2;
-
-  $("decor").appendChild(el);
-}
-
-/* ==========================================
-   PLAYER RENDERING
-========================================== */
-
-function renderPlayers() {
-  if (!state) return;
-
-  const container = $("players");
-  container.innerHTML = "";
-
-  state.players.forEach((p, i) => {
-    const card = document.createElement("div");
-    card.className = "playerCard";
-    if (i === state.turn) card.classList.add("active");
-
-    const row = document.createElement("div");
-    row.className = "playerRow";
-
-    const dot = document.createElement("span");
-    dot.className = "dot";
-    dot.style.background = p.color;
-    dot.style.color = p.color;
-
-    const name = document.createElement("b");
-    name.textContent = p.name + (p.peerId === myPeerId ? " (KAMU)" : "");
-
-    const score = document.createElement("span");
-    score.className = "playerScore";
-    score.textContent = p.pos;
-
-    row.append(dot, name, score);
-    card.appendChild(row);
-    container.appendChild(card);
-  });
-}
-
-function updatePieces() {
-  if (!state) return;
-
-  const container = $("pieces");
-  container.innerHTML = "";
-
-  const offsets = [
-    [-10, -10], [10, -10], [-10, 10], [10, 10]
-  ];
-
-  state.players.forEach((p, i) => {
-    const pos = cellPosition(p.pos);
-    const piece = document.createElement("div");
-
-    piece.className = "piece";
-    piece.textContent = String(i + 1);
-    piece.style.background = p.color;
-    piece.style.color = p.color;
-    piece.style.left = `calc(${pos.x}% + ${offsets[i][0]}px)`;
-    piece.style.top = `calc(${pos.y}% + ${offsets[i][1]}px)`;
-
-    container.appendChild(piece);
-  });
-}
-
-/* ==========================================
-   DICE — REQUESTED BY CURRENT PLAYER
-========================================== */
-
-$("roll").addEventListener("click", () => {
-  if (!online || !state || !state.started || state.busy) return;
-
-  const current = state.players[state.turn];
-  if (!current || current.peerId !== myPeerId) return;
-
-  if (isHost) {
-    hostRoll(state.turn);
-  } else {
-    const conn = connections.get(hostPeerId);
-    if (conn && conn.open) {
-      conn.send({ type: "action", action: "roll" });
-      $("roll").disabled = true;
-      $("roll").textContent = "MENUNGGU HOST…";
-    } else {
-      setNetwork("KONEKSI HOST TIDAK TERSEDIA");
-    }
-  }
-});
-
-async function hostRoll(index) {
-  if (!isHost || !state || hostBusy || !state.started) return;
-  if (index !== state.turn || state.winner !== null) return;
-
-  hostBusy = true;
-  state.busy = true;
-  broadcastState();
-
-  const result = await animateDice();
-
-  if (!state || !state.players[index]) {
-    hostBusy = false;
-    return;
-  }
-
-  state.lastRoll = result;
-  showToast("DADU: " + result, worlds[selectedWorld].accent);
-  playTone(300 + result * 70, .15);
-
-  await moveAuthoritative(index, result);
-
-  if (state.winner === null) {
-    if (result !== 6) advanceTurn(true);
-    else {
-      state.busy = false;
-      showToast("DAPAT 6! GILIRAN LAGI", worlds[selectedWorld].accent2);
-    }
-  }
-
-  hostBusy = false;
-  state.busy = false;
-  broadcastState();
-}
-
-function animateDice() {
-  return new Promise(resolve => {
-    const dice = $("dice");
-    dice.classList.add("rolling");
-    let count = 0;
-
-    const interval = setInterval(() => {
-      dice.textContent = diceFaces[1 + Math.floor(Math.random() * 6)];
-      count++;
-
-      if (count >= 12) {
-        clearInterval(interval);
-        const result = 1 + Math.floor(Math.random() * 6);
-        dice.textContent = diceFaces[result];
-        dice.classList.remove("rolling");
-        resolve(result);
-      }
-    }, 65);
-  });
-}
-
-/* ==========================================
-   AUTHORITATIVE MOVEMENT
-========================================== */
-
-async function moveAuthoritative(index, steps) {
-  if (!isHost || !state) return;
-
-  const player = state.players[index];
-
-  for (let step = 0; step < steps; step++) {
-    if (!player || player.pos >= 100) break;
-
-    player.pos++;
-    broadcastState();
-    playTone(220 + step * 12, .035);
-
-    await wait(180);
-  }
-
-  if (player.pos === 100) {
-    state.winner = index;
-    showToast("VICTORY!", worlds[selectedWorld].accent2);
-    broadcastState();
-    return;
-  }
-
-  const map = maps[selectedWorld];
-  const ladderTarget = map.ladders[player.pos];
-  const snakeTarget = map.snakes[player.pos];
-
-  if (ladderTarget) {
-    showToast(worlds[selectedWorld].ladder + " NAIK TANGGA!", worlds[selectedWorld].accent);
-    playTone(620, .12);
-    await wait(450);
-
-    player.pos = ladderTarget;
-    broadcastState();
-
-    await wait(350);
-  } else if (snakeTarget) {
-    showToast(worlds[selectedWorld].snake + " TURUN ULAR!", worlds[selectedWorld].accent2);
-    playTone(150, .22);
-    await wait(450);
-
-    player.pos = snakeTarget;
-    broadcastState();
-
-    await wait(350);
-  }
-
-  if (player.pos >= 100) {
-    state.winner = index;
-    broadcastState();
-  }
-}
-
-function advanceTurn(broadcast = true) {
-  if (!state || state.players.length === 0) return;
-
-  state.turn = (state.turn + 1) % state.players.length;
-  state.busy = false;
-
-  if (broadcast) broadcastState();
-}
-
-/* ==========================================
-   VISUAL FEEDBACK AND SOUND
-========================================== */
-
-function showToast(message, color) {
-  const el = $("toast");
-  el.textContent = message;
-  el.style.color = color;
-  el.classList.add("show");
-
-  clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => el.classList.remove("show"), 1400);
-}
-
-let audioContext = null;
-
-function playTone(frequency, duration) {
-  try {
-    audioContext ||= new (window.AudioContext || window.webkitAudioContext)();
-
-    const oscillator = audioContext.createOscillator();
-    const gain = audioContext.createGain();
-
-    oscillator.type = "sine";
-    oscillator.frequency.value = frequency;
-    gain.gain.value = .035;
-
-    oscillator.connect(gain);
-    gain.connect(audioContext.destination);
-
-    gain.gain.exponentialRampToValueAtTime(
-      .001, audioContext.currentTime + duration
-    );
-
-    oscillator.start();
-    oscillator.stop(audioContext.currentTime + duration);
-  } catch (_) {}
-}
-
-function wait(ms) {
-  return new Promise(resolve => setTimeout(resolve, ms));
-}
-
-/* ==========================================
-   COPY ROOM CODE
-========================================== */
-
-$("copyRoom").addEventListener("click", async () => {
-  if (!roomCode) return;
-
-  try {
-    await navigator.clipboard.writeText(roomCode);
-    setStatus("Kode room berhasil disalin: " + roomCode);
-  } catch (_) {
-    $("roomInput").value = roomCode;
-    $("roomInput").select();
-    setStatus("Kode ditampilkan di kolom room. Salin secara manual.");
-  }
-});
-
-/* ==========================================
-   BACK TO LOBBY
-========================================== */
-
-$("backMenu").addEventListener("click", () => {
-  $("win").classList.add("hidden");
-  $("gameScreen").classList.add("hidden");
-  $("menu").classList.remove("hidden");
-
-  if (isHost && state) {
-    state.started = false;
-    state.winner = null;
-    state.busy = false;
-    state.players.forEach(p => p.pos = 1);
-    gameStarted = false;
-    broadcastLobby();
-    broadcastState();
-  } else {
-    setStatus("Permainan selesai. Kamu bisa keluar atau bergabung ke room lain.");
-  }
-});
-
-/* ==========================================
-   AMBIENT PARTICLES
-========================================== */
-
-const canvas = $("particles");
-const ctx = canvas.getContext("2d");
-let W = 0, H = 0;
-let particles = [];
-
-function resizeParticles() {
-  W = window.innerWidth;
-  H = window.innerHeight;
-  const ratio = Math.min(window.devicePixelRatio || 1, 2);
-
-  canvas.width = Math.floor(W * ratio);
-  canvas.height = Math.floor(H * ratio);
-  canvas.style.width = W + "px";
-  canvas.style.height = H + "px";
-  ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
-
-  particles = Array.from({length: 65}, () => ({
-    x: Math.random() * W,
-    y: Math.random() * H,
-    r: Math.random() * 1.7 + .4,
-    speed: Math.random() * .25 + .05,
-    alpha: Math.random() * .55 + .15
-  }));
-}
-
-function animateParticles() {
-  ctx.clearRect(0, 0, W, H);
-  ctx.fillStyle = worlds[selectedWorld].accent;
-
-  for (const p of particles) {
-    p.y -= p.speed;
-    if (p.y < -5) {
-      p.y = H + 5;
-      p.x = Math.random() * W;
-    }
-
-    ctx.globalAlpha = p.alpha;
-    ctx.beginPath();
-    ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-    ctx.fill();
-  }
-
-  ctx.globalAlpha = 1;
-  requestAnimationFrame(animateParticles);
-}
-
-window.addEventListener("resize", () => {
-  resizeParticles();
-  if (gameStarted && state) createDecor();
-});
-
-applyWorld();
-resizeParticles();
-animateParticles();
-
-setNetwork("BELUM TERHUBUNG");
-```
+function resetJoin(){$('joinRoom').disabled=false;$('joinRoom').textContent='Gabung'}
+$('createRoom').onclick=createRoom;$('joinRoom').onclick=joinRoom;
+$('roomCodeInput').addEventListener('input',e=>{e.target.value=e.target.value.toUpperCase().replace(/[^A-HJ-NP-Z2-9]/g,'').slice(0,6)});
+$('copyCode').onclick=copyCode;$('copyGameCode').onclick=copyCode;
+function copyCode(){if(!roomCode){toast('Belum ada kode room.');return}if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(roomCode).then(()=>toast('Kode '+roomCode+' disalin','success')).catch(()=>fallbackCopy(roomCode));else fallbackCopy(roomCode)}
+function fallbackCopy(s){const el=document.createElement('textarea');el.value=s;document.body.appendChild(el);el.select();try{document.execCommand('copy');toast('Kode '+s+' disalin','success')}catch(e){toast('Kode room: '+s)}el.remove()}
+function renderLobby(){if(!state)return;$('lobbyHint').textContent=isHost?'Room aktif. Bagikan kode kepada teman, lalu mulai saat siap.':'Terhubung ke room. Tunggu host memulai permainan.';$('roomCodeArea').classList.remove('hidden');$('roomCodeDisplay').textContent=state.roomCode;$('startGame').disabled=!(isHost&&!state.started&&state.players.length>=2);$('startGame').textContent=state.started?'Permainan Sedang Berjalan':state.players.length<2?'Mulai Permainan · Minimal 2 Pemain':'▶ Mulai Permainan';$('leaveRoom').disabled=false;$('lobbyPlayers').innerHTML='';for(let i=0;i<4;i++){const p=state.players[i];const el=document.createElement('div');el.className='player-slot';el.innerHTML=p?`<div class="avatar" style="background:${COLORS[p.color]}22;border-color:${COLORS[p.color]}66">${EMOJIS[p.color]}</div><div class="player-meta"><strong>${escapeHtml(p.name)}${p.id===localId?' (Kamu)':''}</strong><small>${p.id===makePeerId(state.roomCode)?'HOST':(p.connected===false?'Terputus':'Pemain '+(i+1))}</small></div><span class="slot-state ${p.connected===false?'':'online'}">${p.connected===false?'OFFLINE':'READY'}</span>`:`<div class="avatar">＋</div><div class="player-meta"><strong>Slot pemain ${i+1}</strong><small>Menunggu pemain</small></div><span class="slot-state">EMPTY</span>`;$('lobbyPlayers').appendChild(el)}}
+$('startGame').onclick=()=>{if(!isHost||!state||state.players.length<2)return;state.started=true;state.mode=mode;state.world=world;state.turn=0;addLog('Permainan dimulai!');broadcast('state');showGame();toast('Permainan dimulai!','success')};
+$('leaveRoom').onclick=()=>leaveRoom(true);
+function leaveRoom(showToast=true){closePeer();$('roomCodeArea').classList.add('hidden');$('lobbyHint').textContent='Belum ada room aktif. Buat room baru atau masukkan kode dari teman.';$('startGame').disabled=true;$('startGame').textContent='Mulai Permainan · Minimal 2 Pemain';$('leaveRoom').disabled=true;$('lobbyPlayers').innerHTML=`<div class="player-slot"><div class="avatar">✦</div><div class="player-meta"><strong>Menunggu pemain</strong><small>Buat atau gabung ke room</small></div><span class="slot-state">—</span></div>`+ [2,3,4].map(n=>`<div class="player-slot"><div class="avatar">＋</div><div class="player-meta"><strong>Slot pemain ${n}</strong><small>Belum bergabung</small></div><span class="slot-state">EMPTY</span></div>`).join('');$('gameView').classList.add('hidden');resetCreate();resetJoin();setNet('ONLINE READY',true);if(showToast)toast('Kamu keluar dari room')}
+function showGame(){$('gameView').classList.remove('hidden');$('gameView').scrollIntoView({behavior:'smooth',block:'start'});renderAll()}
+$('backLobby').onclick=()=>$('playSetup').scrollIntoView({behavior:'smooth'});
+function renderAll(){if(!state)return;world=state.world||world;mode=state.mode||mode;document.body.dataset.theme=world;document.querySelectorAll('.world').forEach(b=>b.classList.toggle('selected',b.dataset.world===world));document.querySelectorAll('.mode-card').forEach(b=>b.classList.toggle('selected',b.dataset.mode===mode));renderLobby();if(state.started){$('gameView').classList.remove('hidden');renderGame()}else{$('gameView').classList.add('hidden')}}
+function boardPosition(pos){const row=Math.floor((pos-1)/10);const col=(row%2===0)?((pos-1)%10):(9-((pos-1)%10));return {row:9-row,col}}
+function renderSnakesBoard(){const board=$('board');board.style.gridTemplateColumns='repeat(10,1fr)';board.style.gridTemplateRows='repeat(10,1fr)';board.innerHTML='';const posToPlayers={};state.players.forEach((p,i)=>{if(p.position>0){(posToPlayers[p.position]??=[]).push(i)}});for(let visual=100;visual>=1;visual--){const pos=visual;const row=Math.floor((pos-1)/10);const col=(row%2===0)?((pos-1)%10):(9-((pos-1)%10));const cell=document.createElement('div');cell.className='tile';cell.style.gridRow=String(10-row);cell.style.gridColumn=String(col+1);if(SNAKES[pos])cell.classList.add('snake');if(LADDERS[pos])cell.classList.add('ladder');if([1,10,20,30,40,50,60,70,80,90,100].includes(pos))cell.classList.add('safe');let mark='';if(SNAKES[pos])mark='🐍';if(LADDERS[pos])mark='🪜';const players=posToPlayers[pos]||[];cell.innerHTML=`<small>${pos}</small><span style="font-size:clamp(8px,1.2vw,13px)">${mark}</span><div class="tokens">${players.map(i=>`<i class="mini-token" title="${escapeHtml(state.players[i].name)}" style="background:${COLORS[state.players[i].color]}"></i>`).join('')}</div>`;board.appendChild(cell)}const center=document.createElement('div');center.className='board-center';center.innerHTML=`<div class="center-logo">${({neon:'🌃',forest:'🌿',desert:'🏜️',ocean:'🌊',inferno:'🌋',frost:'❄️'})[world]}</div><strong>LUDOVERSE</strong><span>${escapeHtml(WORLD_NAMES[world])}</span>`;board.appendChild(center)}
+const LUDO_PATHS=[
+[[6,1],[6,2],[6,3],[6,4],[6,5],[5,6],[4,6],[3,6],[2,6],[1,6],[0,6],[0,7],[0,8],[1,8],[2,8],[3,8],[4,8],[5,8],[6,9],[6,10],[7,10],[8,10],[8,9],[8,8],[9,8],[10,8],[11,8],[12,8],[12,7],[12,6],[11,6],[10,6],[9,6],[8,6],[7,6],[6,5]]
+];
+const LUDO_TRACK=(()=>{const a=[];for(let c=1;c<=5;c++)a.push([6,c]);for(let r=5;r>=0;r--)a.push([r,6]);for(let r=0;r<=5;r++)a.push([r,7]);for(let c=8;c<=12;c++)a.push([6,c]);for(let c=12;c>=7;c--)a.push([7,c]);for(let r=8;r<=12;r++)a.push([8,r]);return a})();
+const LUDO_COORDS=[];
+function ludoTrack(){const p=[];for(let c=1;c<=5;c++)p.push([6,c]);for(let r=5;r>=0;r--)p.push([r,6]);for(let c=7;c<=11;c++)p.push([0,c]);for(let r=1;r<=5;r++)p.push([r,12]);for(let c=11;c>=7;c--)p.push([6,c]);for(let r=7;r<=11;r++)p.push([r,6]);return p}
+const LUDO_STARTS=[0,13,26,39], LUDO_SAFE=[0,8,13,21,26,34,39,47];
+function buildLudoBoard(){const board=$('board');board.style.gridTemplateColumns='repeat(15,1fr)';board.style.gridTemplateRows='repeat(15,1fr)';board.innerHTML='';const cells={};function cell(r,c,cls='',html=''){const d=document.createElement('div');d.className='tile '+cls;d.style.gridRow=String(r+1);d.style.gridColumn=String(c+1);d.innerHTML=html;board.appendChild(d);cells[r+','+c]=d;return d}
+const bases=[{r:0,c:0,color:0},{r:0,c:9,color:1},{r:9,c:9,color:2},{r:9,c:0,color:3}];
+bases.forEach(b=>{const d=cell(b.r,b.c,'','');d.style.gridRow=`${b.r+1} / span 6`;d.style.gridColumn=`${b.c+1} / span 6`;d.style.borderRadius='10px';d.style.background=`linear-gradient(145deg,${COLORS[b.color]}42,${COLORS[b.color]}12)`;d.style.border=`1px solid ${COLORS[b.color]}99`;d.style.display='grid';d.style.placeItems='center';d.style.padding='10%';d.innerHTML=`<div style="width:100%;height:100%;border-radius:12px;border:1px solid ${COLORS[b.color]}80;background:#07101dcc;display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;gap:7%;padding:12%">${[0,1,2,3].map(()=>`<i style="border-radius:50%;background:${COLORS[b.color]};box-shadow:inset 0 2px 4px #fff9,0 3px 5px #0008"></i>`).join('')}</div>`});
+const track=[];for(let c=1;c<=5;c++)track.push([6,c]);for(let r=5;r>=0;r--)track.push([r,6]);for(let r=0;r<=5;r++)track.push([r,7]);for(let c=8;c<=13;c++)track.push([6,c]);for(let r=7;r<=13;r++)track.push([r,8]);for(let c=7;c>=0;c--)track.push([8,c]);for(let r=9;r<=13;r++)track.push([r,6]);for(let r=13;r>=9;r--)track.push([r,7]);track.forEach((xy,i)=>{const [r,c]=xy;if(r<0||c<0||r>14||c>14)return;const d=cell(r,c,'',String(i+1));d.style.fontSize='clamp(5px,.8vw,9px)';d.style.background='#24334a';if(LUDO_SAFE.includes(i))d.style.background='#6b5cc533';});
+for(let i=0;i<4;i++){const p=state.players[i];if(!p)continue;p.pawns.forEach((step,pawn)=>{if(step<0)return;const idx=(LUDO_STARTS[p.color]+step)%52;const xy=track[idx];if(!xy)return;const d=cells[xy[0]+','+xy[1]];if(d){const token=document.createElement('button');token.className='mini-token';token.style.width='65%';token.style.height='65%';token.style.background=COLORS[p.color];token.title=p.name+' · Pion '+(pawn+1);token.onclick=()=>choosePawn(pawn);d.appendChild(token)}})}
+const center=cell(6,6,'board-center','');center.style.gridRow='7 / span 3';center.style.gridColumn='7 / span 3';center.innerHTML=`<div class="center-logo">${({neon:'🌃',forest:'🌿',desert:'🏜️',ocean:'🌊',inferno:'🌋',frost:'❄️'})[world]}</div><strong>LUDO</strong><span>HOME</span>`}
+function renderBoard(){if(mode==='snakes')renderSnakesBoard();else buildLudoBoard()}
+function renderGame(){if(!state||!state.started)return;$('gameModeLabel').textContent=mode==='snakes'?'SNAKES & LADDERS':'LUDO';$('gameTitle').textContent=mode==='snakes'?'Race to the top.':'Bring your crew home.';$('gameSub').textContent='Room '+state.roomCode+' · '+WORLD_NAMES[world];renderBoard();const current=state.players[state.turn];$('turnName').textContent=state.winner?state.players.find(p=>p.id===state.winner)?.name+' menang!':(current?.name||'Menunggu pemain');$('turnAvatar').textContent=current?EMOJIS[current.color]:'🎲';$('turnAvatar').style.background=current?COLORS[current.color]+'25':'';$('turnHint').textContent=state.winner?'Permainan selesai':(current?.id===localId?'Giliran kamu':'Menunggu '+(current?.name||'pemain'));$('turnCaption').textContent=state.winner?'MATCH FINISHED':'GILIRAN PEMAIN';$('diceValue').textContent=state.lastRoll??'—';$('diceHelp').textContent=state.winner?'Mulai room baru untuk bermain lagi.':(current?.id===localId?'Giliranmu. Lempar dadu.':'Menunggu pemain melempar dadu.');$('rollDice').disabled=!!state.winner||!state.started||current?.id!==localId||isRolling||state.awaitingPawn; $('rollDice').textContent=state.awaitingPawn&&current?.id===localId?'Pilih pion di papan':'🎲  Lempar Dadu';$('gamePlayers').innerHTML='';state.players.forEach((p,i)=>{const d=document.createElement('div');d.className='player-slot';d.innerHTML=`<div class="avatar" style="background:${COLORS[p.color]}22;border-color:${COLORS[p.color]}66">${EMOJIS[p.color]}</div><div class="player-meta"><strong>${escapeHtml(p.name)}${p.id===localId?' (Kamu)':''}</strong><small>${mode==='snakes'?'Posisi: '+p.position+'/100':'Pion di rumah: '+p.pawns.filter(x=>x===57).length+'/4'}</small></div><span class="slot-state ${i===state.turn?'online':''}">${i===state.turn?'TURN':p.connected===false?'OFFLINE':'READY'}</span>`;$('gamePlayers').appendChild(d)});$('activityLog').innerHTML=(state.log||[]).map(x=>`<div class="log-item">${escapeHtml(x)}</div>`).join('');if(!state.lastRoll){setDieFace(1,false);$('diceValue').textContent='—'}}
+function setDieFace(n,animate=true){const die=$('dice');if(animate){die.classList.remove('rolling');void die.offsetWidth;die.classList.add('rolling')}const patterns={1:[4],2:[0,8],3:[0,4,8],4:[0,2,6,8],5:[0,2,4,6,8],6:[0,2,3,5,6,8]};[...die.children].forEach((p,i)=>p.style.opacity=(patterns[n]||patterns[1]).includes(i)?'1':'0')}
+function nextTurn(){state.awaitingPawn=false;state.turn=(state.turn+1)%state.players.length;state.updated=Date.now()}
+function hostRoll(playerId){if(!isHost||!state||state.winner||state.awaitingPawn)return;const p=state.players[state.turn];if(!p||p.id!==playerId)return;const roll=1+Math.floor(Math.random()*6);state.lastRoll=roll;setDieFace(roll);playTone(roll===6?740:440,.12,'triangle');if(mode==='snakes'){const old=p.position;let target=old+roll;if(target>100){addLog(`${p.name} mendapat ${roll}, tetapi perlu angka tepat untuk finis.`);nextTurn()}else{p.position=target;let event='';if(SNAKES[target]){p.position=SNAKES[target];event=` tergelincir oleh ular ke ${p.position}`}else if(LADDERS[target]){p.position=LADDERS[target];event=` naik tangga ke ${p.position}`}if(p.position===100){state.winner=p.id;event=' mencapai kotak 100 dan menang!'}addLog(`${p.name} melempar ${roll}: ${old} → ${target}.${event}`);if(!state.winner&&roll!==6)nextTurn();else if(!state.winner)addLog(`${p.name} mendapat giliran bonus karena angka 6.`)}}
+else{const hasOut=p.pawns.some(x=>x>=0&&x<57);if(roll===6||hasOut){state.awaitingPawn=true;addLog(`${p.name} melempar ${roll}. Pilih pion untuk bergerak.`)}else{addLog(`${p.name} mendapat ${roll}; perlu angka 6 untuk mengeluarkan pion.`);nextTurn()}}
+broadcast()}
+$('rollDice').onclick=()=>{if(!state||!state.started||state.winner)return;const p=state.players[state.turn];if(p?.id!==localId)return;if(isHost)hostRoll(localId);else if(hostConn?.open)hostConn.send({type:'roll'});else toast('Koneksi host terputus.','error')};
+function choosePawn(index){if(!state||!state.started||state.mode!=='ludo'||state.winner||!state.awaitingPawn)return;const current=state.players[state.turn];if(current?.id!==localId)return;const step=current.pawns[index];if(step===57)return;if(step<0&&state.lastRoll!==6){toast('Pion hanya bisa keluar dengan angka 6.');return}if(!isHost){hostConn?.send({type:'choose',pawn:index});return}performLudoMove(localId,index)}
+function performLudoMove(playerId,index){const p=state.players[state.turn];if(!isHost||!p||p.id!==playerId||!state.awaitingPawn||index<0||index>3)return;let step=p.pawns[index];if(step<0){if(state.lastRoll!==6)return;step=0}else step+=state.lastRoll;if(step>57){addLog(`${p.name} harus mendapat angka tepat untuk masuk rumah.`);nextTurn();broadcast();return}p.pawns[index]=step;
+if(step<52){const global=(LUDO_STARTS[p.color]+step)%52;if(!LUDO_SAFE.includes(global)){for(const enemy of state.players){if(enemy.id===p.id)continue;enemy.pawns.forEach((s,j)=>{if(s>=0&&s<52&&(LUDO_STARTS[enemy.color]+s)%52===global){enemy.pawns[j]=-1;addLog(`${p.name} menangkap pion ${enemy.name}!`)}})}}}
+if(p.pawns.every(x=>x===57)){state.winner=p.id;addLog(`${p.name} membawa semua pion ke rumah dan menang!`)}else addLog(`${p.name} menggerakkan pion ${index+1}.`);state.awaitingPawn=false;if(!state.winner&&state.lastRoll!==6)nextTurn();broadcast()}
+$('startGame').addEventListener('click',()=>{if(state&&isHost&&state.started)showGame()});
+$('playerName').addEventListener('keydown',e=>{if(e.key==='Enter')createRoom()});
+$('roomCodeInput').addEventListener('keydown',e=>{if(e.key==='Enter')joinRoom()});
+window.addEventListener('beforeunload',()=>{try{if(peer)peer.destroy()}catch(e){}});
+setNet('ONLINE READY',true);
+})();
 </script>
 </body>
 </html>
-```
